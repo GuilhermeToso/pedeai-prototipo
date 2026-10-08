@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#004E89">
+<title>PedeAí Cliente</title>
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="marca.css">
+<style>
+/* ---------- moldura ---------- */
+.phone{height:800px;min-height:0}
+@media (max-width:480px){.phone{height:100vh;height:100dvh}}
+#app{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+.view{flex:1;overflow-y:auto;padding:16px 16px 28px;scrollbar-width:thin}
+.footbar{padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 18px rgba(26,26,26,.05)}
+.btn.lg{min-height:52px;font-size:16px;border-radius:16px;padding:12px 18px}
+.btn.lg.split{justify-content:space-between}
+.btn.outline-blue{color:var(--azul);border-color:var(--azul);background:var(--surface)}
+.link{border:0;background:none;color:var(--azul);font-weight:800;padding:10px 4px;min-height:44px}
+.link.danger{color:var(--bad)}
+.proto-bar label{display:inline-flex;align-items:center;gap:6px;opacity:.9}
+.proto-bar b{font-weight:800;letter-spacing:.02em}
+.proto-bar .sp{flex:1}
+
+/* ---------- cabeçalho ---------- */
+.hdr{background:var(--azul);color:#fff;padding:12px 12px 12px;flex:none}
+.hdr .top{display:flex;align-items:center;gap:8px}
+.hb{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:20px;display:grid;place-items:center;position:relative;flex:none;transition:.15s}
+.hb:hover{background:rgba(255,255,255,.24)}
+.hb .badge{position:absolute;top:-3px;right:-3px;background:var(--laranja);color:#fff;border-radius:999px;min-width:20px;height:20px;font-size:11px;font-weight:900;display:grid;place-items:center;padding:0 5px;border:2px solid var(--azul)}
+.hb.bump{animation:bump .45s ease}
+@keyframes bump{30%{transform:scale(1.22)}60%{transform:scale(.95)}}
+.avatar{width:44px;height:44px;border-radius:14px;background:#fff;display:grid;place-items:center;font-size:24px;flex:none}
+.hdr .k{flex:1;min-width:0}
+.hdr .kn{font-weight:900;font-size:18px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr .ks{font-size:13px;opacity:.9;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr .meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:10px;font-size:12.5px}
+.hdr .meta .t{opacity:.85;font-weight:700}
+.sit{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--grafite);border-radius:999px;padding:3px 10px 3px 8px;font-size:12px;font-weight:900}
+.today{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.14);border-radius:999px;padding:3px 10px;font-weight:800}
+
+/* ---------- abas de seção ---------- */
+.sec-tabs{background:var(--surface);border-bottom:1px solid var(--line);padding:8px 12px;flex:none}
+.sec-tabs button{min-height:40px}
+
+/* ---------- cardápio ---------- */
+.sub-h{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:900;margin:6px 2px 10px}
+.sub-h:not(:first-child){margin-top:22px}
+.prod{display:flex;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow);margin-bottom:12px;transition:.15s;min-height:112px}
+.prod:not(:disabled):hover{border-color:var(--line-strong);transform:translateY(-1px)}
+.prod .info{flex:1;min-width:0;display:flex;flex-direction:column}
+.pn{font-weight:800;font-size:15.5px;line-height:1.25}
+.pd{color:var(--muted);font-size:13px;margin:3px 0 8px;flex:1}
+.price{font-weight:900;font-variant-numeric:tabular-nums}
+.thumb{width:88px;height:88px;border-radius:14px;display:grid;place-items:center;font-size:44px;flex:none;position:relative}
+.add-fab{position:absolute;right:-6px;bottom:-6px;width:34px;height:34px;border-radius:50%;background:var(--surface);color:var(--azul);border:2px solid var(--azul);font-weight:900;font-size:20px;line-height:1;display:grid;place-items:center;box-shadow:var(--shadow)}
+.prod.off{cursor:default;box-shadow:none;background:var(--surface2)}
+.prod.off .thumb{filter:grayscale(1);opacity:.55}
+.prod.off .pn,.prod.off .price{color:var(--muted)}
+.powered{display:flex;align-items:center;justify-content:center;gap:6px;margin:22px 0 6px;color:var(--muted);font-size:12px;font-weight:700}
+.powered .logo img{width:20px;height:20px}.powered .logo .wm{font-size:14px}
+.strip{display:flex;align-items:center;gap:10px;width:calc(100% - 24px);margin:12px 12px 0;border:1.5px solid #BCD3E6;background:var(--azul-claro);color:var(--azul-esc);border-radius:16px;padding:10px 12px;text-align:left;min-height:56px;flex:none}
+.strip .ic{font-size:22px}
+.strip .tx{flex:1;min-width:0}
+.strip .tx b{display:block;font-size:14px}
+.strip .tx span{font-size:12.5px;font-weight:700;opacity:.85;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.strip .chev{font-size:22px;font-weight:900}
+.offline{margin:12px 12px 0;flex:none}
+
+/* ---------- produto ---------- */
+.hero-ph{height:210px;border-radius:22px;display:grid;place-items:center;font-size:104px;margin-bottom:16px;box-shadow:inset 0 -30px 60px rgba(255,255,255,.35)}
+.p-title{font-size:23px;font-weight:900;margin:0;line-height:1.2}
+.p-desc{color:var(--muted);margin:6px 0 12px}
+.p-price{font-size:22px;font-weight:900;color:var(--azul)}
+.qty{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}
+.qty button{width:44px;height:44px;border:0;background:transparent;font-size:22px;font-weight:900;color:var(--azul);border-radius:50%}
+.qty button:hover{background:var(--azul-claro)}
+.qty span{min-width:26px;text-align:center;font-weight:900;font-variant-numeric:tabular-nums}
+.qty.sm button{width:38px;height:38px;font-size:19px}
+.counter{font-size:12px;color:var(--muted);text-align:right;margin-top:-6px}
+
+/* ---------- carrinho ---------- */
+.h2{font-size:22px;font-weight:900;margin:2px 0 14px}
+.c-item{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.c-item:last-of-type{border-bottom:0}
+.c-item .thumb{width:56px;height:56px;font-size:28px;border-radius:12px}
+.c-item .ci{flex:1;min-width:0}
+.c-item .ci b{display:block;line-height:1.25}
+.obs{font-size:12.5px;color:var(--muted);font-style:italic}
+.c-item .cr{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface);min-height:58px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.opt:hover{border-color:var(--line-strong)}
+.opt.sel{border-color:var(--azul);background:var(--azul-claro)}
+.opt input[type=radio]{accent-color:var(--azul);width:20px;height:20px;flex:none;margin:0}
+.opt .oi{font-size:22px;width:28px;text-align:center}
+.opt .ot{flex:1}
+.opt .ot small{display:block;color:var(--muted);font-weight:700;font-size:12.5px}
+.fee-row{display:flex;align-items:center;gap:12px;min-height:44px}
+.fee-row .ft{flex:1}
+.fee-row .ft small{color:var(--muted);font-weight:700;margin-left:4px}
+.sum{display:flex;justify-content:space-between;padding:5px 0;color:var(--muted);font-weight:700}
+.sum span:last-child{color:var(--text);font-variant-numeric:tabular-nums}
+.sum.total{border-top:1.5px dashed var(--line-strong);margin-top:8px;padding-top:12px;font-size:19px;font-weight:900;color:var(--text)}
+.ok-t{color:var(--ok)!important}
+.pickup-info{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px;font-weight:800}
+.addr{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:14px;padding:12px;background:var(--surface);margin:0 0 8px 0;cursor:pointer}
+.addr.sel{border-color:var(--azul);background:var(--azul-claro)}
+.addr input{accent-color:var(--azul);width:20px;height:20px;margin:2px 0 0}
+.bad-t{color:var(--bad);font-weight:800}
+
+/* ---------- identificação / pagamento ---------- */
+.lead{font-size:24px;font-weight:900;margin:4px 0 4px;line-height:1.2}
+.chk{display:flex;align-items:center;gap:10px;min-height:44px;font-weight:700;font-size:14px}
+.pay-total{display:flex;justify-content:space-between;align-items:baseline;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:6px}
+.pay-total .v{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums}
+.pay-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--areia);flex:none}
+.qrbox{width:212px;height:212px;margin:8px auto 14px;background:#fff;border-radius:18px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.qrbox svg{width:100%;height:100%;display:block}
+.copy{display:flex;gap:8px}
+.copy .input{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--muted)}
+.cd{font-size:44px;font-weight:900;color:var(--azul);font-variant-numeric:tabular-nums;line-height:1;margin-top:18px}
+.cd.low{color:var(--bad)}
+.waiting{display:inline-flex;align-items:center;gap:10px;margin-top:14px;color:var(--muted);font-weight:800}
+.spin{width:22px;height:22px;border:3px solid var(--azul-claro);border-top-color:var(--azul);border-radius:50%;animation:rot 1s linear infinite;flex:none}
+.spin.lg{width:44px;height:44px;border-width:4px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.secure{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--ok);margin-bottom:12px}
+.cardbox{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 16px 6px;box-shadow:var(--shadow)}
+.card-vis{height:150px;border-radius:18px;background:linear-gradient(135deg,var(--azul),#0A6FB8 60%,var(--verde));color:#fff;padding:18px;display:flex;flex-direction:column;justify-content:space-between;margin-bottom:16px;box-shadow:0 10px 24px rgba(0,78,137,.25)}
+.card-vis .cn{font-family:ui-monospace,Consolas,monospace;font-size:18px;letter-spacing:.12em}
+.card-vis .chipc{width:38px;height:28px;border-radius:6px;background:linear-gradient(135deg,#F7D774,#C9A43A)}
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px 24px;gap:6px}
+.big-ic{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font-size:46px;background:var(--surface);box-shadow:var(--shadow);margin-bottom:12px}
+.big-ic.ok{background:var(--verde-claro)} .big-ic.bad{background:var(--bad-bg)} .big-ic.warn{background:var(--warn-bg)} .big-ic.info{background:var(--azul-claro)}
+.center h2{margin:0;font-size:22px;font-weight:900}
+.center p{margin:4px 0;color:var(--muted);max-width:290px}
+.center .acts{width:100%;margin-top:18px;display:flex;flex-direction:column;gap:8px}
+
+/* ---------- comprovante e acompanhamento ---------- */
+.success{text-align:center;margin:6px 0 16px}
+.success .ck{width:72px;height:72px;border-radius:50%;background:var(--verde);color:#fff;font-size:38px;font-weight:900;display:grid;place-items:center;margin:0 auto 10px;box-shadow:0 0 0 10px var(--verde-claro);animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.success h2{margin:8px 0 2px;font-size:22px;font-weight:900}
+.receipt{background:var(--surface);border-radius:18px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--line);font-size:14px}
+.receipt .rh{text-align:center}
+.receipt .rh b{display:block;font-size:16px}
+.receipt hr{border:0;border-top:1.5px dashed var(--line-strong);margin:12px 0}
+.r-row{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+.r-row span:last-child,.r-row b:last-child{font-variant-numeric:tabular-nums}
+.r-foot{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;font-size:12px;color:var(--muted);font-weight:700}
+.r-foot img{width:18px;height:18px}
+.ask{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:12px;display:flex;gap:12px;align-items:flex-start}
+.ask .ai{font-size:26px}
+.o-head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.o-head h2{margin:0;font-size:22px;font-weight:900;flex:1}
+.eta{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:800;font-size:13.5px;margin-bottom:12px}
+.eta b{color:var(--azul);font-size:15px}
+.part{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.part h4{margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:15.5px;font-weight:900}
+.steps{display:flex;align-items:flex-start;margin:14px 0 10px}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;font-size:11.5px;font-weight:800;color:var(--muted);position:relative;line-height:1.2}
+.step::before{content:"";position:absolute;top:11px;left:-50%;right:50%;height:3px;background:var(--line)}
+.step:first-child::before{display:none}
+.step .b{width:24px;height:24px;border-radius:50%;background:var(--surface);border:2px solid var(--line-strong);z-index:1;display:grid;place-items:center;font-size:12px;color:#fff;margin-bottom:6px;transition:.3s}
+.step.done,.step.cur{color:var(--text)}
+.step.done .b{background:var(--verde);border-color:var(--verde)}
+.step.done::before,.step.cur::before{background:var(--verde)}
+.step.cur{color:var(--azul)}
+.step.cur .b{background:var(--azul);border-color:var(--azul);box-shadow:0 0 0 5px var(--azul-claro);animation:pulse 1.6s ease infinite}
+.step.pick{color:var(--warn)} .step.pick .b{background:#F2A516;border-color:#F2A516;box-shadow:0 0 0 5px var(--warn-bg)} .step.pick::before{background:var(--verde)}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(225,236,245,.6)}}
+.it{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;padding:3px 0}
+.it.out span:first-child{text-decoration:line-through;color:var(--muted)}
+.msg{margin:0 0 10px}
+.dcode{background:var(--azul);color:#fff;border-radius:16px;text-align:center;padding:14px;margin-top:12px}
+.dcode .n{font-size:38px;font-weight:900;letter-spacing:.35em;margin:2px 0 0 .35em;font-variant-numeric:tabular-nums}
+.dcode small{opacity:.85;font-weight:700}
+.arrived{background:var(--laranja-claro);border-radius:16px;padding:14px;margin-top:12px}
+.arrived b{display:block;font-size:16px;margin-bottom:10px}
+.foot-acts{display:flex;gap:8px;margin-top:6px}
+.foot-acts .btn{flex:1}
+
+/* ---------- QR, câmera ---------- */
+.entry{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 24px;gap:8px;background:linear-gradient(180deg,var(--surface) 0%,var(--areia) 60%)}
+.entry .logo img{width:56px;height:56px}.entry .logo .wm{font-size:34px}
+.cam{flex:1;background:#101418;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;position:relative;padding:24px;cursor:pointer}
+.cam .back{position:absolute;top:12px;left:12px}
+.frame{width:230px;height:230px;position:relative;margin-bottom:22px}
+.frame i{position:absolute;width:44px;height:44px;border:5px solid #fff}
+.frame i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-radius:18px 0 0 0}
+.frame i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-radius:0 18px 0 0}
+.frame i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 18px}
+.frame i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 18px 0}
+.frame .line{position:absolute;left:14px;right:14px;height:3px;background:var(--laranja);box-shadow:0 0 14px var(--laranja);border-radius:3px;animation:scan 2s ease-in-out infinite}
+@keyframes scan{0%,100%{top:16px}50%{top:210px}}
+.cam p{margin:4px 0;text-align:center}
+.cam .hint{opacity:.7;font-size:13px}
+.mini-frame{width:150px;height:150px;margin:16px auto 6px;position:relative}
+.mini-frame .frame{width:150px;height:150px;margin:0}
+.mini-frame .frame i{border-color:var(--azul);width:34px;height:34px}
+@keyframes scan2{0%,100%{top:12px}50%{top:134px}}
+.mini-frame .frame .line{animation-name:scan2}
+
+/* ---------- avisos dentro do celular ---------- */
+#toast-root{position:absolute;top:10px;left:10px;right:10px;z-index:130;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.ptoast{background:var(--grafite);color:#fff;border-radius:16px;padding:12px 14px;font-weight:700;font-size:14px;box-shadow:var(--shadow-lg);animation:drop .28s ease;display:flex;gap:10px;align-items:flex-start}
+.ptoast.hide{animation:lift .25s ease forwards}
+@keyframes drop{from{transform:translateY(-16px);opacity:0}}
+@keyframes lift{to{transform:translateY(-16px);opacity:0}}
+.phone .overlay{position:absolute;z-index:120}
+.phone .sheet{animation:up .25s ease}
+@media (min-width:700px){.phone .overlay{align-items:flex-end}.phone .sheet{border-radius:22px 22px 0 0}}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+.sheet h3{margin:0 0 8px;font-size:20px;font-weight:900}
+.sheet p{margin:6px 0;color:var(--muted)}
+.sheet .grab{width:44px;height:5px;border-radius:5px;background:var(--line-strong);margin:-6px auto 14px}
+.sheet .acts{display:flex;gap:8px;margin-top:16px}
+.sheet .acts .btn{flex:1}
+.menu-it{display:flex;align-items:center;gap:12px;width:100%;border:0;background:transparent;text-align:left;padding:12px 6px;min-height:52px;border-radius:12px;font-weight:800;font-size:15px}
+.menu-it:hover{background:var(--areia)}
+.menu-it .mi{font-size:22px;width:30px;text-align:center}
+.menu-it.danger{color:var(--bad)}
+.checking{position:absolute;inset:0;background:rgba(247,244,239,.86);z-index:125;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-weight:800;color:var(--azul)}
+</style>
+</head>
+<body>
+
+<div class="proto-bar" aria-label="Controles do protótipo">
+  <a href="index.html">← Protótipos</a>
+  <b>App do cliente</b>
+  <label>Ir para
+    <select id="pb-screen">
+      <option value="">Escolha a tela…</option>
+      <optgroup label="Entrada">
+        <option value="qr">Entrada pelo QR</option>
+        <option value="qr-invalid">QR inválido</option>
+        <option value="qr-revoked">QR trocado</option>
+        <option value="qr-disabled">Ponto desativado</option>
+        <option value="qr-suspended">Estabelecimento indisponível</option>
+      </optgroup>
+      <optgroup label="Pedido">
+        <option value="menu">Cardápio</option>
+        <option value="product">Produto</option>
+        <option value="cart">Carrinho</option>
+        <option value="ident">Identificação</option>
+        <option value="check-price">Conferência: preço mudou</option>
+        <option value="check-soldout">Conferência: item esgotou</option>
+        <option value="pay">Forma de pagamento</option>
+        <option value="pix">Pix</option>
+        <option value="card">Cartão</option>
+        <option value="declined">Pagamento recusado</option>
+        <option value="expired">Prazo para pagar acabou</option>
+        <option value="paid">Comprovante</option>
+        <option value="track">Acompanhamento</option>
+      </optgroup>
+      <optgroup label="Situações">
+        <option value="closing">Fecha em 20 min</option>
+        <option value="paused">Pausado até 14:30</option>
+        <option value="closed">Fechado</option>
+        <option value="offline">Sem internet</option>
+        <option value="rate">Muitas tentativas</option>
+        <option value="scan">Visita expirada (câmera)</option>
+        <option value="blocked">Pedidos bloqueados</option>
+        <option value="pixonly">Pagamento só Pix</option>
+        <option value="custblocked">Cadastro impedido</option>
+        <option value="ended">Visita encerrada</option>
+        <option value="history">Pedidos em outro celular (fase 2)</option>
+      </optgroup>
+      <optgroup label="Pontos e tipos">
+        <option value="balcao">Ponto Balcão</option>
+        <option value="foodtruck">Foodtruck (Local de hoje)</option>
+      </optgroup>
+      <optgroup label="Site / delivery (depois do MVP)">
+        <option value="site">Site: cardápio</option>
+        <option value="site-cart">Site: carrinho com entrega</option>
+        <option value="site-login">Site: entrar com celular</option>
+        <option value="site-track">Site: código de entrega</option>
+        <option value="site-arrived">Site: "Seu pedido chegou?"</option>
+      </optgroup>
+    </select>
+  </label>
+  <label>Situação
+    <select id="pb-situ"><option value="aberto">Aberto</option><option value="fecha">Fecha em 20 min</option><option value="pausado">Pausado</option><option value="fechado">Fechado</option></select>
+  </label>
+  <label>Ao pedir
+    <select id="pb-check"><option value="ok">Tudo certo</option><option value="price">Preço mudou</option><option value="soldout">Item esgotou</option><option value="rate">Muitas tentativas</option><option value="expired">Visita expirada</option><option value="blocked">Pedidos bloqueados</option></select>
+  </label>
+  <label>Pagamento
+    <select id="pb-pay"><option value="aprovado">Aprovado</option><option value="recusado">Recusado</option><option value="expirado">Prazo acaba</option></select>
+  </label>
+  <span class="sp"></span>
+  <button id="pb-reset" type="button">Recomeçar</button>
+</div>
+
+<div class="stage">
+  <div class="phone" id="phone">
+    <div id="app"></div>
+    <div id="sheet-root"></div>
+    <div id="toast-root" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DADOS FICTÍCIOS
+   ========================================================= */
+const KIOSKS = {
+  quiosque:  {nome:'Quiosque do Zé', emoji:'🏖️', mesa:'12', rotulo:'Guarda-sol azul', abre:'9h', fecha:'18h', fee:10, pausaAte:'14:30'},
+  foodtruck: {nome:'Brasa Truck', emoji:'🔥', mesa:'3', rotulo:'Mesa da calçada', local:'Praça Independência, Santos', abre:'18h', fecha:'23h', fee:10, pausaAte:'20:30'},
+};
+const SECTIONS = {
+  quiosque: [
+    {id:'bebidas', nome:'Bebidas', subs:[{id:'alc',nome:'Alcoólicos'},{id:'nalc',nome:'Não alcoólicos'}]},
+    {id:'porcoes', nome:'Porções', subs:[]},
+    {id:'sorvetes', nome:'Sorvetes', subs:[]},
+  ],
+  foodtruck: [
+    {id:'lanches', nome:'Lanches', subs:[]},
+    {id:'acomp', nome:'Acompanhamentos', subs:[]},
+    {id:'bebidas', nome:'Bebidas', subs:[]},
+  ],
+};
+const PRODUCTS = [
+  {id:'p1', kind:'quiosque', sec:'bebidas', sub:'alc',  nome:'Caipirinha de limão', desc:'Cachaça, limão e açúcar', preco:18, setor:'bar', emoji:'🍋', cor:'#E6F5DA'},
+  {id:'p2', kind:'quiosque', sec:'bebidas', sub:'alc',  nome:'Heineken long neck', desc:'330 mL, bem gelada', preco:12, setor:'bar', emoji:'🍺', cor:'#FFF0C9'},
+  {id:'p3', kind:'quiosque', sec:'bebidas', sub:'alc',  nome:'Caipirinha 500 mL', desc:'Tamanho grande', preco:25, setor:'bar', emoji:'🍹', cor:'#FFE1D6'},
+  {id:'p4', kind:'quiosque', sec:'bebidas', sub:'nalc', nome:'Água de coco', desc:'Natural, no coco', preco:10, setor:'bar', emoji:'🥥', cor:'#DDF6F3'},
+  {id:'p5', kind:'quiosque', sec:'bebidas', sub:'nalc', nome:'Refrigerante lata', desc:'350 mL', preco:7, setor:'bar', emoji:'🥤', cor:'#E1ECF5', esgotado:true},
+  {id:'p6', kind:'quiosque', sec:'porcoes', sub:null, nome:'Camarão empanado', desc:'400 g, com molho tártaro', preco:59, setor:'cozinha', emoji:'🍤', cor:'#FFE6DB'},
+  {id:'p7', kind:'quiosque', sec:'porcoes', sub:null, nome:'Batata frita', desc:'Porção grande, sequinha', preco:32, setor:'cozinha', emoji:'🍟', cor:'#FFF1D6'},
+  {id:'p8', kind:'quiosque', sec:'porcoes', sub:null, nome:'Isca de peixe', desc:'Peixe do dia, com limão', preco:48, setor:'cozinha', emoji:'🐟', cor:'#E1ECF5', pausado:true},
+  {id:'p10',kind:'quiosque', sec:'porcoes', sub:null, nome:'Pastel de camarão', desc:'6 unidades', preco:36, setor:'cozinha', emoji:'🥟', cor:'#F6EAD8'},
+  {id:'p9', kind:'quiosque', sec:'sorvetes', sub:null, nome:'Picolé de fruta', desc:'Sabores do dia', preco:8, setor:'bar', emoji:'🍦', cor:'#FDE6F0'},
+  {id:'p11',kind:'quiosque', sec:'sorvetes', sub:null, nome:'Açaí na tigela', desc:'500 mL, com granola e banana', preco:26, setor:'bar', emoji:'🍇', cor:'#EDE3F7'},
+  {id:'f1', kind:'foodtruck', sec:'lanches', sub:null, nome:'Brasa Burger', desc:'Blend 160 g, queijo e cebola na brasa', preco:34, setor:'cozinha', emoji:'🍔', cor:'#FFE6DB'},
+  {id:'f2', kind:'foodtruck', sec:'lanches', sub:null, nome:'Cheddar Bacon', desc:'Blend 160 g, cheddar e bacon crocante', preco:38, setor:'cozinha', emoji:'🥓', cor:'#FFF1D6'},
+  {id:'f3', kind:'foodtruck', sec:'lanches', sub:null, nome:'Smash duplo', desc:'Dois smash de 90 g e queijo prato', preco:36, setor:'cozinha', emoji:'🍔', cor:'#F6EAD8', esgotado:true},
+  {id:'f4', kind:'foodtruck', sec:'acomp', sub:null, nome:'Batata rústica', desc:'Com alecrim e páprica', preco:18, setor:'cozinha', emoji:'🍟', cor:'#FFF1D6'},
+  {id:'f5', kind:'foodtruck', sec:'acomp', sub:null, nome:'Onion rings', desc:'10 anéis, molho da casa', preco:22, setor:'cozinha', emoji:'🧅', cor:'#F3EEE4'},
+  {id:'f6', kind:'foodtruck', sec:'bebidas', sub:null, nome:'Refrigerante lata', desc:'350 mL', preco:7, setor:'bar', emoji:'🥤', cor:'#E1ECF5'},
+  {id:'f7', kind:'foodtruck', sec:'bebidas', sub:null, nome:'Limonada suíça', desc:'500 mL', preco:12, setor:'bar', emoji:'🍋', cor:'#E6F5DA'},
+  {id:'f8', kind:'foodtruck', sec:'bebidas', sub:null, nome:'Cerveja IPA', desc:'Artesanal, 473 mL', preco:22, setor:'bar', emoji:'🍺', cor:'#FFF0C9', pausado:true},
+];
+const BASE_PRICES = Object.fromEntries(PRODUCTS.map(p=>[p.id,p.preco]));
+const ACCT = {nome:'Ana Souza', tel:'(13) 99876-1234', addrs:[
+  {rot:'Casa', end:'Av. Ana Costa, 120, ap. 32', cidade:'Santos', km:1.8},
+  {rot:'Trabalho', end:'R. XV de Novembro, 95', cidade:'Santos', km:3.4},
+]};
+const DELIV = {local:5, ate2:5, ate4:8, maxKm:4, minimo:30, gratis:100};
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+function fresh(){ return {
+  screen:'qr', qr:'ok', situ:'aberto', net:'online', risk:'normal', check:'ok', payOutcome:'aprovado',
+  sec:null, prod:null, qty:1, obs:'', cart:[], feeOn:false, mode:'mesa', identified:false, nome:'', tel:'', wpp:true,
+  method:'', payStep:'choose', attempts:0, cd:600, order:null, ended:false, notifAsked:false, backTo:null,
+  entry:'qr', point:'mesa', kind:'quiosque', logged:false, lstep:'tel', dmode:'local', where:'', addr:0, tmpAddr:null,
+}; }
+let S = fresh();
+const T = {cd:null, pix:null, sim:null, scan:null, card:null};
+
+/* =========================================================
+   UTILITÁRIOS
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const brl = v => 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const hhmm = d => d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+const K = () => KIOSKS[S.kind];
+const secs = () => SECTIONS[S.kind];
+const P = id => PRODUCTS.find(p=>p.id===id);
+const unavailable = p => p.esgotado || p.pausado;
+const isSite = () => S.entry==='site';
+const isBalcao = () => !isSite() && S.point==='balcao';
+const subtotal = () => S.cart.reduce((a,i)=>a+P(i.pid).preco*i.qty,0);
+const cartCount = () => S.cart.reduce((a,i)=>a+i.qty,0);
+const feeShown = () => !isSite() && S.mode==='mesa' && !isBalcao();   /* taxa de serviço só em "Na mesa" */
+const feeVal = () => (feeShown() && S.feeOn) ? Math.round(subtotal()*K().fee)/100 : 0;
+const addrList = () => S.logged ? ACCT.addrs : (S.tmpAddr?[S.tmpAddr]:[]);
+const curKm = () => (addrList()[S.addr]||{km:2}).km;
+const freeDeliv = () => subtotal() > DELIV.gratis;
+const outOfArea = () => isSite() && S.dmode==='end' && curKm()>DELIV.maxKm;
+const delivFee = () => !isSite() || outOfArea() || freeDeliv() ? 0 : S.dmode==='local' ? DELIV.local : curKm()<=2 ? DELIV.ate2 : DELIV.ate4;
+const belowMin = () => isSite() && subtotal() < DELIV.minimo;
+const total = () => subtotal()+feeVal()+delivFee();
+const canOrder = () => S.situ!=='pausado' && S.situ!=='fechado' && S.net==='online';
+const blockReason = () => S.net!=='online' ? 'Sem internet' : S.situ==='fechado' ? 'Fechado agora' : S.situ==='pausado' ? `Pausado até ${K().pausaAte}` : '';
+
+function toast(msg, ms=3000){
+  const root=$('#toast-root'); const t=document.createElement('div'); t.className='ptoast'; t.innerHTML=msg; root.appendChild(t);
+  setTimeout(()=>{ t.classList.add('hide'); setTimeout(()=>t.remove(),260); }, ms);
+}
+function notify(html){ $('#toast-root').innerHTML=''; toast(html, 5000); }   /* aviso passageiro de evento, some em 5 s */
+function modal(html){ $('#sheet-root').innerHTML = `<div class="overlay" data-act="close-overlay"><div class="sheet" role="dialog"><div class="grab"></div>${html}</div></div>`; }
+function closeModal(){ $('#sheet-root').innerHTML=''; }
+const modalOpen = () => !!$('#sheet-root').innerHTML;
+function fakeQR(seed){ let h=0; for(const c of String(seed)) h=(h*31+c.charCodeAt(0))>>>0; let r=''; for(let y=0;y<25;y++) for(let x=0;x<25;x++){ const corner=(x<7&&y<7)||(x>17&&y<7)||(x<7&&y>17); let on; if(corner){ const cx=x>17?x-18:x, cy=y>17?y-18:y; on=(cx===0||cx===6||cy===0||cy===6)||(cx>1&&cx<5&&cy>1&&cy<5);} else { h=(h*1103515245+12345)>>>0; on=(h>>16)&1; } if(on) r+=`<rect x="${x}" y="${y}" width="1.02" height="1.02"/>`; } return `<svg viewBox="0 0 25 25" fill="#1A1A1A">${r}</svg>`; }
+function bumpCart(){ const b=document.querySelector('[data-cart-ic]'); if(b){ b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); } }
+function stopAll(){ clearInterval(T.cd); clearTimeout(T.pix); clearTimeout(T.sim); clearTimeout(T.scan); clearTimeout(T.card); }
+function seedCart(){
+  S.cart = S.kind==='foodtruck'
+    ? [{pid:'f1',qty:2,obs:'um sem cebola'},{pid:'f4',qty:1,obs:''},{pid:'f7',qty:2,obs:''}]
+    : [{pid:'p1',qty:2,obs:'uma sem açúcar'},{pid:'p2',qty:1,obs:''},{pid:'p6',qty:1,obs:''}];
+}
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+function situChip(){
+  const k=K();
+  if(S.situ==='aberto')  return `<span class="sit"><span class="dot ok"></span>Aberto</span>`;
+  if(S.situ==='fecha')   return `<span class="sit"><span class="dot warn"></span>Fecha em 20 min</span>`;
+  if(S.situ==='pausado') return `<span class="sit"><span class="dot warn"></span>Pausado até ${k.pausaAte}</span>`;
+  return `<span class="sit"><span class="dot bad"></span>Fechado</span>`;
+}
+const BACK = {product:'menu', cart:'menu', ident:'cart', login:'cart', pay:'cart', paid:'menu', track:'menu', history:'menu'};
+function header(o={}){
+  const k=K(), scr=S.screen, onMenu=['menu','product'].includes(scr);
+  const back = o.back!==false && BACK[scr];
+  const showPoint = o.point!==false;
+  let sub='';
+  if(isSite()) sub = `🛵 Entrega${S.logged?` · ${esc(ACCT.nome.split(' ')[0])}`:''}`;
+  else if(showPoint) sub = isBalcao() ? '🧾 Balcão' : `Mesa ${k.mesa} · ${esc(k.rotulo)}`;
+  const actions = o.actions!==false && scr==='menu';
+  const hasOrder = S.order && !S.order.cancelled && !S.order.unpaid;
+  return `<header class="hdr">
+    <div class="top">
+      ${back?`<button class="hb" data-act="go" data-v="${back}" aria-label="Voltar">←</button>`:`<div class="avatar" aria-hidden="true">${k.emoji}</div>`}
+      <div class="k"><div class="kn">${esc(k.nome)}</div>${sub?`<div class="ks">${sub}</div>`:''}</div>
+      ${actions?`${hasOrder?`<button class="hb" data-act="go" data-v="track" aria-label="Meus pedidos">🧾${activeOrder()?'<span class="badge">1</span>':''}</button>`:''}
+        <button class="hb" data-cart-ic data-act="go" data-v="cart" aria-label="Carrinho">🛒${cartCount()?`<span class="badge">${cartCount()}</span>`:''}</button>
+        <button class="hb" data-act="menu" aria-label="Menu">≡</button>`:''}
+    </div>
+    ${onMenu?`<div class="meta">${situChip()}<span class="t">Hoje: ${k.abre} às ${k.fecha}</span>${S.kind==='foodtruck'?`<span class="today">📍 ${esc(k.local)}</span>`:''}</div>`:''}
+  </header>`;
+}
+const offline = () => S.net==='offline' ? `<div class="alert offline">📶 <span>Sem internet. Confira o Wi-Fi ou os dados móveis para pedir.</span></div>` : '';
+const footbar = html => `<div class="footbar">${html}</div>`;
+
+/* =========================================================
+   ENTRADA (QR)
+   ========================================================= */
+function viewQR(){
+  const box=(ic,cls,t,txt,act='')=>`<div class="center"><div class="big-ic ${cls}">${ic}</div><h2>${t}</h2><p>${txt}</p>${act?`<div class="acts">${act}</div>`:''}</div>`;
+  if(S.qr==='invalid') return box('⚠️','warn','QR inválido','Não reconhecemos este código. Tente ler de novo.',`<button class="btn primary block lg" data-act="qr-retry">Ler de novo</button>`);
+  if(S.qr==='revoked') return box('🔁','info','Este QR foi trocado','Peça o QR novo ao atendente.');
+  if(S.qr==='disabled') return box('🚫','bad','Ponto desativado','Este ponto não recebe pedidos agora. Fale com o atendente.');
+  if(S.qr==='suspended') return box('⛔','bad','Indisponível','Este estabelecimento não está recebendo pedidos pelo PedeAí agora.');
+  return `<div class="entry">
+    <span class="logo"><img src="logo.svg" alt=""><span class="wm">pede<b>Aí</b></span></span>
+    <div class="mini-frame"><div class="frame"><i></i><i></i><i></i><i></i><div class="line"></div></div></div>
+    <h2 style="margin:6px 0 0;font-size:22px;font-weight:900">Aponte a câmera para o QR</h2>
+    <p class="muted" style="margin:0 0 18px;max-width:280px">O cardápio abre direto no navegador. Sem instalar nada.</p>
+    <button class="btn primary block lg" data-act="qr-ok">Ler QR ${isBalcao()?'do balcão':'da mesa'}</button>
+  </div>`;
+}
+
+/* =========================================================
+   CARDÁPIO
+   ========================================================= */
+function prodCard(p){
+  const off=unavailable(p), closed=S.situ==='fechado';
+  return `<button class="prod ${off?'off':''}" ${off?'disabled aria-disabled="true"':`data-act="open-prod" data-id="${p.id}"`}>
+    <div class="info"><div class="pn">${esc(p.nome)}</div><div class="pd">${esc(p.desc)}</div>
+      <div class="row"><span class="price">${brl(p.preco)}</span>${off?'<span class="chip bad">Esgotado</span>':''}</div></div>
+    <div class="thumb" style="background:${p.cor}">${p.emoji}${off||closed?'':'<span class="add-fab" aria-hidden="true">+</span>'}</div>
+  </button>`;
+}
+function viewMenu(){
+  const closed = S.situ==='fechado';
+  const list = secs(); if(!list.find(s=>s.id===S.sec)) S.sec=list[0].id;
+  const sec = list.find(s=>s.id===S.sec);
+  const ps = PRODUCTS.filter(p=>p.kind===S.kind && p.sec===sec.id);
+  let body='';
+  if(sec.subs.length){ for(const sb of sec.subs){ const l=ps.filter(p=>p.sub===sb.id); if(l.length) body+=`<h3 class="sub-h">${esc(sb.nome)}</h3>${l.map(prodCard).join('')}`; } }
+  else body = ps.map(prodCard).join('');
+  return `${header({point:!closed, actions:!closed})}
+    ${offline()}
+    ${orderStrip()}
+    <nav class="tabs sec-tabs" role="tablist">${list.map(s=>`<button role="tab" aria-selected="${s.id===S.sec}" data-act="sec" data-id="${s.id}">${esc(s.nome)}</button>`).join('')}</nav>
+    <main class="view">
+      ${body}
+      <div class="powered">Pedidos por <span class="logo"><img src="logo.svg" alt=""><span class="wm">pede<b>Aí</b></span></span></div>
+    </main>
+    ${!closed && cartCount()?footbar(`<button class="btn primary block lg split" data-act="go" data-v="cart"><span>🛒 Ver carrinho (${cartCount()})</span><span>${brl(subtotal())}</span></button>`):''}`;
+}
+
+/* =========================================================
+   PRODUTO
+   ========================================================= */
+function viewProduct(){
+  const p=P(S.prod);
+  const ok = canOrder() && !unavailable(p);
+  return `${header()}
+  <main class="view">
+    <div class="hero-ph" style="background:${p.cor}">${p.emoji}</div>
+    <h2 class="p-title">${esc(p.nome)}</h2>
+    <p class="p-desc">${esc(p.desc)}</p>
+    <div class="between" style="margin-bottom:18px"><span class="p-price">${brl(p.preco)}</span>
+      <span class="qty"><button data-act="qty" data-d="-1" aria-label="Menos">−</button><span>${S.qty}</span><button data-act="qty" data-d="1" aria-label="Mais">+</button></span></div>
+    <div class="field"><label for="obs">Observação</label><textarea class="input" id="obs" rows="3" maxlength="200" placeholder="Ex.: sem gelo">${esc(S.obs)}</textarea></div>
+    <div class="counter"><span id="obs-n">${S.obs.length}</span>/200</div>
+  </main>
+  ${footbar(ok?`<button class="btn primary block lg split" data-act="add"><span>Adicionar</span><span>${brl(p.preco*S.qty)}</span></button>`
+    :`<button class="btn primary block lg" disabled>${unavailable(p)?'Esgotado':blockReason()}</button>`)}`;
+}
+
+/* =========================================================
+   CARRINHO
+   ========================================================= */
+function cartItems(){
+  return S.cart.map((i,ix)=>{ const p=P(i.pid); return `<div class="c-item">
+    <div class="thumb" style="background:${p.cor}">${p.emoji}</div>
+    <div class="ci"><b>${esc(p.nome)}</b>${i.obs?`<div class="obs">“${esc(i.obs)}”</div>`:''}<div class="price small" style="margin-top:2px">${brl(p.preco*i.qty)}</div></div>
+    <div class="cr"><span class="qty sm"><button data-act="cqty" data-i="${ix}" data-d="-1" aria-label="Menos">${i.qty===1?'🗑':'−'}</button><span>${i.qty}</span><button data-act="cqty" data-i="${ix}" data-d="1" aria-label="Mais">+</button></span></div>
+  </div>`; }).join('');
+}
+function viewCart(){
+  if(!S.cart.length) return `${header()}<div class="center"><div class="big-ic">🛒</div><h2>Carrinho vazio</h2><p>Escolha algo gostoso no cardápio.</p><div class="acts"><button class="btn primary block lg" data-act="go" data-v="menu">Ver cardápio</button></div></div>`;
+  if(isSite()) return viewCartSite();
+  return `${header()}${offline()}
+  <main class="view">
+    <h2 class="h2">Seu carrinho</h2>
+    <div class="card" style="padding:4px 14px">${cartItems()}</div>
+    <button class="link" data-act="go" data-v="menu">+ Adicionar itens</button>
+    <div class="section-title">Receber</div>
+    ${isBalcao()?`<div class="pickup-info">🧾 Retirar no balcão</div>`:`
+    <label class="opt ${S.mode==='mesa'?'sel':''}"><input type="radio" name="mode" data-act="mode" data-v="mesa" ${S.mode==='mesa'?'checked':''}><span class="oi">🪑</span><span class="ot"><b>Na mesa</b></span></label>
+    <label class="opt ${S.mode==='balcao'?'sel':''}"><input type="radio" name="mode" data-act="mode" data-v="balcao" ${S.mode==='balcao'?'checked':''}><span class="oi">🧾</span><span class="ot"><b>Retirar no balcão</b></span></label>`}
+    <div class="section-title">Resumo</div>
+    <div class="card">
+      ${feeShown()?`<label class="fee-row"><span class="ft"><b>Taxa de serviço (${K().fee}%)</b><small>opcional</small></span><input type="checkbox" class="switch" data-act="fee" ${S.feeOn?'checked':''} aria-label="Incluir taxa de serviço"></label><hr>`:''}
+      <div class="sum"><span>Produtos</span><span>${brl(subtotal())}</span></div>
+      ${feeShown()&&S.feeOn?`<div class="sum"><span>Taxa de serviço</span><span>${brl(feeVal())}</span></div>`:''}
+      <div class="sum total"><span>Total</span><span>${brl(total())}</span></div>
+    </div>
+  </main>
+  ${footbar(canOrder()?`<button class="btn primary block lg split" data-act="place"><span>Fazer pedido</span><span>${brl(total())}</span></button>`:`<button class="btn primary block lg" disabled>${blockReason()}</button>`)}`;
+}
+function viewCartSite(){
+  const addrs=addrList(), out=outOfArea();
+  const label = out ? 'Fora da área de entrega' : belowMin() ? `Pedido mínimo ${brl(DELIV.minimo)}` : '';
+  return `${header()}${offline()}
+  <main class="view">
+    <h2 class="h2">Seu carrinho</h2>
+    <div class="card" style="padding:4px 14px">${cartItems()}</div>
+    <button class="link" data-act="go" data-v="menu">+ Adicionar itens</button>
+    <div class="section-title">Entrega</div>
+    <label class="opt ${S.dmode==='local'?'sel':''}"><input type="radio" name="dmode" data-act="dmode" data-v="local" ${S.dmode==='local'?'checked':''}><span class="oi">📍</span><span class="ot"><b>No local</b><small>Praia, praça ou evento</small></span></label>
+    ${S.dmode==='local'?`<div class="field" style="margin:4px 0 12px"><label for="d-where">Onde você está?</label><input class="input" id="d-where" value="${esc(S.where)}" placeholder="Ex.: guarda-sol azul, posto 4"></div>`:''}
+    <label class="opt ${S.dmode==='end'?'sel':''}"><input type="radio" name="dmode" data-act="dmode" data-v="end" ${S.dmode==='end'?'checked':''}><span class="oi">🏠</span><span class="ot"><b>No endereço</b></span></label>
+    ${S.dmode==='end'?`<div style="padding:2px 0 0 0">${addrs.map((a,ix)=>`<label class="addr ${S.addr===ix?'sel':''}"><input type="radio" name="addr" data-act="addr" data-i="${ix}" ${S.addr===ix?'checked':''}><div><b>${esc(a.rot)}</b><div class="small muted">${esc(a.end)} · ${esc(a.cidade)}</div><div class="small ${out&&S.addr===ix?'bad-t':'muted'}">${out&&S.addr===ix?'Fora da área de entrega':`${String(a.km).replace('.',',')} km`}</div></div></label>`).join('')}
+      <button class="link" data-act="new-addr">+ Novo endereço</button></div>`:''}
+    <div class="section-title">Resumo</div>
+    <div class="card">
+      <div class="sum"><span>Produtos</span><span>${brl(subtotal())}</span></div>
+      <div class="sum"><span>Entrega</span><span class="${freeDeliv()&&!out?'ok-t':''}">${out?'—':freeDeliv()?'Grátis':brl(delivFee())}</span></div>
+      ${!out&&!freeDeliv()?`<div class="small muted" style="text-align:right">Grátis acima de ${brl(DELIV.gratis)}</div>`:''}
+      <div class="sum total"><span>Total</span><span>${brl(total())}</span></div>
+    </div>
+    <div class="alert" style="margin-top:12px;font-size:13.5px">⚠️ <span>Se você não estiver no local, o pedido não é devolvido.</span></div>
+  </main>
+  ${footbar(!canOrder()?`<button class="btn primary block lg" disabled>${blockReason()}</button>`
+    : label?`<button class="btn primary block lg" disabled>${label}</button>`
+    : `<button class="btn primary block lg split" data-act="place"><span>Fazer pedido</span><span>${brl(total())}</span></button>${!S.logged?'<div class="small muted" style="text-align:center;margin-top:6px">Você entra com o celular antes de pagar.</div>':''}`)}`;
+}
+
+/* =========================================================
+   IDENTIFICAÇÃO / CONTA
+   ========================================================= */
+function viewIdent(){
+  return `${header()}
+  <main class="view">
+    <div class="lead">Quase lá!</div>
+    <p class="muted" style="margin:0 0 18px">Quem está pedindo? Só uma vez por visita.</p>
+    <div class="field"><label for="i-nome">Nome</label><input class="input" id="i-nome" autocomplete="given-name" value="${esc(S.nome)}" placeholder="Ex.: João"></div>
+    <div class="field"><label for="i-tel">Celular (WhatsApp)</label><input class="input" id="i-tel" inputmode="tel" autocomplete="tel" value="${esc(S.tel)}" placeholder="(13) 99999-0000"></div>
+    <label class="chk"><input type="checkbox" class="check" id="i-wpp" ${S.wpp?'checked':''}> Receber avisos do pedido no WhatsApp</label>
+  </main>
+  ${footbar(`<button class="btn primary block lg" data-act="ident-ok">Continuar</button>`)}`;
+}
+function viewLogin(){
+  const code = S.lstep==='code';
+  return `${header()}
+  <main class="view">
+    <div class="lead">Entrar</div>
+    <p class="muted" style="margin:0 0 18px">Com o seu celular. Sem senha.</p>
+    <div class="field"><label for="l-nome">Nome</label><input class="input" id="l-nome" value="${esc(S.nome||'')}" placeholder="Ex.: Ana"></div>
+    <div class="field"><label for="l-tel">Celular (WhatsApp)</label><input class="input" id="l-tel" inputmode="tel" value="${esc(S.tel||'')}" placeholder="(13) 99999-0000"></div>
+    ${code?`<div class="field"><label for="l-code">Código do WhatsApp</label><input class="input" id="l-code" style="font-size:24px;letter-spacing:.4em;text-align:center;font-weight:900" maxlength="6" inputmode="numeric" placeholder="000000"></div>
+      <div style="text-align:center"><button class="link" data-act="resend">Reenviar código</button></div>`:''}
+  </main>
+  ${footbar(code?`<button class="btn primary block lg" data-act="login-ok">Entrar</button>`:`<button class="btn primary block lg" data-act="login-tel">Receber código</button>`)}`;
+}
+
+/* =========================================================
+   PAGAMENTO
+   ========================================================= */
+function viewPay(){
+  const o=S.order, code=o?o.code:'A28';
+  if(S.risk==='blocked') return `${header()}<div class="center"><div class="big-ic bad">🔒</div><h2>Pedido não concluído</h2>
+    <p>Este cadastro está impedido de pedir pelo PedeAí.</p><p class="small">Acha que é engano? <b>suporte@pedeai.com.br</b></p>
+    <div class="acts"><button class="btn outline-blue block lg" data-act="toast" data-msg="📨 Ticket aberto. Respondemos pelo WhatsApp ou e-mail.">Abrir ticket</button></div></div>`;
+  if(S.payStep==='choose'){
+    const pixOnly=S.risk==='pixonly';
+    const m=(v,ic,t,s)=>`<button class="opt" data-act="method" data-v="${v}"><span class="pay-ic">${ic}</span><span class="ot"><b>${t}</b><small>${s}</small></span><span style="font-size:20px;color:var(--muted)">›</span></button>`;
+    return `${header()}
+    <main class="view">
+      <div class="between" style="margin-bottom:12px"><h2 class="h2" style="margin:0">Pagamento</h2><span class="chip info">Pedido ${code}</span></div>
+      <div class="pay-total"><span class="muted" style="font-weight:800">Total</span><span class="v">${brl(o?o.total:total())}</span></div>
+      ${S.attempts?`<div class="alert" style="margin-top:10px">Tentativa ${S.attempts+1} de 3</div>`:''}
+      <div class="section-title">Como pagar?</div>
+      ${m('pix','⚡','Pix','Aprovação na hora')}
+      ${pixOnly?`<p class="small muted" style="margin:4px 2px">No momento, só Pix para este cadastro.</p>`:`
+      ${m('credito','💳','Cartão de crédito','')}
+      ${m('debito','💳','Cartão de débito','')}`}
+      <div style="text-align:center;margin-top:8px"><button class="link danger" data-act="cancel-unpaid">Cancelar pedido</button></div>
+    </main>`;
+  }
+  if(S.payStep==='pix') return `${header()}
+    <main class="view" style="text-align:center">
+      <h2 class="h2" style="margin-bottom:2px">Pague com Pix</h2>
+      <p class="muted" style="margin:0">Leia o QR no app do banco ou copie o código.</p>
+      <div class="qrbox">${fakeQR('pix-'+code)}</div>
+      <div class="copy"><input class="input" readonly value="00020126580014br.gov.bcb.pix0136a1b2c3d4-pedeai-${code}5204000053039865406${(o?o.total:total()).toFixed(2)}"><button class="btn sm outline-blue" data-act="toast" data-msg="📋 Código copiado">Copiar</button></div>
+      <div class="cd ${S.cd<60?'low':''}" id="cd">${fmt(S.cd)}</div>
+      <div class="small muted" style="font-weight:700">para pagar <b style="color:var(--text)">${brl(o?o.total:total())}</b></div>
+      <div class="waiting"><span class="spin"></span>Aguardando pagamento…</div>
+      <div style="display:flex;justify-content:center;gap:6px;margin-top:10px"><button class="link" data-act="pay-back">Trocar forma</button><button class="link danger" data-act="cancel-unpaid">Cancelar</button></div>
+    </main>`;
+  if(S.payStep==='card') return `${header()}
+    <main class="view">
+      <div class="between" style="margin-bottom:12px"><h2 class="h2" style="margin:0">Cartão de ${S.method==='credito'?'crédito':'débito'}</h2><span class="chip info num" id="cd">${fmt(S.cd)}</span></div>
+      <div class="card-vis"><div class="between"><span class="chipc"></span><b>${S.method==='credito'?'CRÉDITO':'DÉBITO'}</b></div><div class="cn">•••• •••• •••• ••••</div><div class="small" style="opacity:.85">NOME NO CARTÃO</div></div>
+      <div class="secure">🔒 Pagamento seguro</div>
+      <div class="cardbox">
+        <div class="field"><label>Número do cartão</label><input class="input" inputmode="numeric" placeholder="0000 0000 0000 0000" value="5502 0912 3456 7890"></div>
+        <div class="row"><div class="field" style="flex:1"><label>Validade</label><input class="input" placeholder="MM/AA" value="08/29"></div><div class="field" style="flex:1"><label>CVV</label><input class="input" inputmode="numeric" placeholder="123" value="•••"></div></div>
+        <div class="field"><label>Nome no cartão</label><input class="input" value="JOAO P SILVA"></div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:6px;margin-top:8px"><button class="link" data-act="pay-back">Trocar forma</button><button class="link danger" data-act="cancel-unpaid">Cancelar</button></div>
+    </main>
+    ${footbar(`<button class="btn primary block lg" id="pay-btn" data-act="card-pay">Pagar ${brl(o?o.total:total())}</button>`)}`;
+  if(S.payStep==='declined'){
+    const last=S.attempts>=3;
+    return `${header()}<div class="center"><div class="big-ic bad">✕</div><h2>Pagamento recusado</h2>
+      <p>${last?'Você chegou a 3 tentativas. Os itens voltaram ao cardápio.':'O banco recusou. Tente de novo ou use outra forma.'}</p>
+      <div class="acts">${last?`<button class="btn primary block lg" data-act="go" data-v="menu">Voltar ao cardápio</button>`:`<button class="btn primary block lg" data-act="pay-back">Tentar de novo</button><span class="small muted">Tentativa ${S.attempts} de 3</span>`}</div></div>`;
+  }
+  if(S.payStep==='expired') return `${header()}<div class="center"><div class="big-ic warn">⌛</div><h2>O prazo acabou</h2>
+    <p>O pedido expirou e nada foi cobrado. Seu carrinho continua aqui.</p>
+    <div class="acts"><button class="btn primary block lg" data-act="go" data-v="cart">Ver carrinho</button></div></div>`;
+  return '';
+}
+
+/* =========================================================
+   PEDIDO: CRIAÇÃO, COMPROVANTE E ACOMPANHAMENTO
+   ========================================================= */
+const BAR_STEPS = ['Recebido','Em análise','Entregue'];
+const KIT_STEPS = ['Recebido','Em preparo','Pronto','Entregue'];
+const BAR_STEPS_D = ['Recebido','Em análise','Pronto'];
+const KIT_STEPS_D = ['Recebido','Em preparo','Pronto'];
+const DELIV_STEPS = ['Aguardando entregador','Saiu para entrega','Entregue'];
+const partDone = p => p.st>=p.steps.length-1 && !p.pickup;
+const allReady = o => o.parts.every(p=>p.st>=p.steps.length-1);
+const orderDone = o => o.site ? o.dst===2 : o.parts.every(partDone);
+const activeOrder = () => { const o=S.order; return o && !o.cancelled && !o.unpaid && !orderDone(o) ? o : null; };
+const partLabel = p => p.pickup ? 'No balcão' : p.steps[Math.min(p.st,p.steps.length-1)];
+
+function createOrder(){
+  const code='A'+(27+Math.floor(Math.random()*6));
+  const items=S.cart.map(i=>({...i, preco:P(i.pid).preco}));
+  const d=isSite(), parts=[];
+  const bar=items.filter(i=>P(i.pid).setor==='bar'), kit=items.filter(i=>P(i.pid).setor==='cozinha');
+  if(bar.length) parts.push({id:'bar', nome:'Bebidas', ic:'🍹', steps:d?BAR_STEPS_D:BAR_STEPS, st:0, pickup:false, items:bar, min:7});
+  if(kit.length) parts.push({id:'kit', nome:'Comida', ic:'🍳', steps:d?KIT_STEPS_D:KIT_STEPS, st:0, pickup:false, items:kit, min:33});
+  S.order={code, parts, total:total(), fee:feeVal(), sub:subtotal(), deliv:delivFee(), mode:d?S.dmode:(isBalcao()?'balcao':S.mode),
+    site:d, dst:0, dcode:String(1000+Math.floor(Math.random()*9000)), method:S.method||'pix', msgs:[], unpaid:false, rr:0, paidAt:null, recv:null};
+}
+function approve(){
+  const o=S.order; o.unpaid=false; o.method=S.method||'pix'; o.paidAt=new Date();
+  S.cart=[]; S.feeOn=false; S.payStep='done'; S.screen='paid'; stopAll(); startSim();
+}
+function etaText(o){ const m=Math.max(...o.parts.map(p=>p.min)); const at=o.paidAt||new Date(); return `${hhmm(new Date(at.getTime()+m*60000))} (${m} min)`; }
+
+function orderStrip(){
+  const o=activeOrder(); if(!o) return '';
+  const det = o.site&&allReady(o) ? `Entrega: ${DELIV_STEPS[o.dst]}` : o.parts.map(p=>`${p.nome}: ${partLabel(p)}`).join(' · ');
+  return `<button class="strip" data-act="go" data-v="track"><span class="ic">🧾</span><span class="tx"><b>Pedido ${o.code}</b><span>${det}</span></span><span class="chev">›</span></button>`;
+}
+function viewPaid(){
+  const o=S.order, k=K();
+  return `${header()}
+  <main class="view">
+    <div class="success"><div class="ck">✓</div><h2>Pagamento confirmado!</h2><p class="muted" style="margin:0">Pedido <b style="color:var(--text)">${o.code}</b> na fila.</p></div>
+    <div class="receipt">
+      <div class="rh"><b>${esc(k.nome)}</b><span class="muted small">${o.site?'Entrega':o.mode==='balcao'&&isBalcao()?'Balcão':'Mesa '+k.mesa} · Pedido ${o.code} · ${(o.paidAt||new Date()).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</span></div>
+      <hr>
+      ${o.parts.flatMap(p=>p.items).map(i=>`<div class="r-row"><span>${i.qty}× ${esc(P(i.pid).nome)}</span><span>${brl(i.preco*i.qty)}</span></div>`).join('')}
+      <hr>
+      <div class="r-row muted"><span>Produtos</span><span>${brl(o.sub)}</span></div>
+      ${o.fee?`<div class="r-row muted"><span>Taxa de serviço (${k.fee}%)</span><span>${brl(o.fee)}</span></div>`:''}
+      ${o.site?`<div class="r-row muted"><span>Entrega</span><span>${o.deliv?brl(o.deliv):'Grátis'}</span></div>`:''}
+      <div class="r-row" style="font-size:17px;margin-top:4px"><b>Total</b><b>${brl(o.total)}</b></div>
+      <div class="r-row muted"><span>Pago com</span><span>${o.method==='pix'?'Pix':o.method==='credito'?'Cartão de crédito':'Cartão de débito'}</span></div>
+      <div class="r-foot"><img src="logo.svg" alt="">Recibo PedeAí · não é nota fiscal</div>
+    </div>
+    <p class="small muted" style="text-align:center;margin:10px 0 0">📲 Enviado para o seu WhatsApp</p>
+    ${!S.notifAsked?`<div class="ask"><span class="ai">🔔</span><div style="flex:1"><b>Avisar quando ficar pronto?</b>
+      <div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn sm outline-blue" data-act="notif" data-v="yes">Permitir</button><button class="btn sm ghost" data-act="notif" data-v="no">Agora não</button></div></div></div>`:''}
+  </main>
+  ${footbar(`<button class="btn primary block lg" data-act="go" data-v="track">Acompanhar pedido</button>`)}`;
+}
+function stepsHtml(p){
+  const fin = partDone(p);
+  return `<div class="steps">${p.steps.map((s,ix)=>{
+    const last = ix===p.steps.length-1;
+    if(p.pickup && last) return `<div class="step pick"><span class="b">!</span>No balcão</div>`;
+    const cls = fin || ix<p.st || (p.pickup && ix<p.steps.length-1) ? 'done' : ix===p.st ? 'cur' : '';
+    return `<div class="step ${cls}"><span class="b">${cls==='done'?'✓':''}</span>${s}</div>`; }).join('')}</div>`;
+}
+function viewTrack(){
+  const o=S.order;
+  if(o.cancelled) return `${header()}<div class="center"><div class="big-ic info">↩️</div><h2>Pedido ${o.code} cancelado</h2><p>Devolvemos ${brl(o.total)} no mesmo meio de pagamento.</p><div class="acts"><button class="btn primary block lg" data-act="another">Fazer outro pedido</button></div></div>`;
+  const done=orderDone(o);
+  const canCancel = o.parts.every(p=>p.st===0 && !p.pickup);
+  const modeChip = o.site ? (o.mode==='local'?'📍 No local':'🏠 No endereço') : o.mode==='mesa' ? '🪑 Na mesa' : '🧾 Retirar no balcão';
+  return `${header()}${offline()}
+  <main class="view">
+    <div class="o-head"><h2>Pedido ${o.code}</h2><span class="chip">${modeChip}</span></div>
+    ${done?'':`<div class="eta">⏱ Previsão <b>${etaText(o)}</b></div>`}
+    ${done && o.recv!=='no'?`<div class="alert ok msg">🎉 <span><b>Tudo entregue!</b> Bom apetite.</span></div>`:''}
+    ${o.msgs.slice(0,2).map(m=>`<div class="alert ${m[0]} msg">${m[1]}</div>`).join('')}
+    ${o.parts.map(p=>`<section class="part">
+      <h4><span>${p.ic} ${esc(p.nome)}</span>${partDone(p)?`<span class="chip ok">${o.site?'Pronto':'Entregue'}</span>`:p.pickup?'<span class="chip warn">No balcão</span>':`<span class="chip info">${partLabel(p)}</span>`}</h4>
+      ${stepsHtml(p)}
+      ${p.items.map(i=>`<div class="it"><span>${i.qty}× ${esc(P(i.pid).nome)}${i.obs?` <span class="obs">“${esc(i.obs)}”</span>`:''}</span></div>`).join('')}
+    </section>`).join('')}
+    ${o.site?`<section class="part">
+      <h4><span>🛵 Entrega</span>${o.dst===2?'<span class="chip ok">Entregue</span>':allReady(o)?`<span class="chip info">${DELIV_STEPS[o.dst]}</span>`:''}</h4>
+      <div class="steps">${DELIV_STEPS.map((s,ix)=>{ const rd=allReady(o); const cls=!rd?'':(ix<o.dst||o.dst===2)?'done':ix===o.dst?'cur':''; return `<div class="step ${cls}"><span class="b">${cls==='done'?'✓':''}</span>${s}</div>`; }).join('')}</div>
+      ${!allReady(o)?`<div class="small muted">Sai quando tudo estiver pronto.</div>`:''}
+      ${o.dst<2?`<div class="dcode"><small>Código de entrega</small><div class="n">${o.dcode}</div><small>Diga ao entregador</small></div>`:''}
+      ${o.dst===2?(o.recv==='no'?`<div class="alert info" style="margin-top:12px">Avisamos o estabelecimento.</div>`:o.recv==='yes'?'':`<div class="arrived"><b>Seu pedido chegou?</b><div class="foot-acts"><button class="btn primary" data-act="recv" data-v="yes">Sim</button><button class="btn" data-act="recv" data-v="no">Não recebi</button></div></div>`):''}
+    </section>`:''}
+    ${canCancel?`<button class="btn danger block" data-act="cancel-paid" style="margin-top:4px">Cancelar pedido</button>`:(done?'':`<p class="small muted" style="text-align:center">Precisa de algo? Fale com o atendente.</p>`)}
+    <div class="foot-acts" style="margin-top:12px">
+      <button class="btn outline-blue" data-act="another">+ ${o.site?'Novo pedido':'Mais uma rodada'}</button>
+      ${o.site?'':`<button class="btn ghost" data-act="end-visit">Encerrar visita</button>`}
+    </div>
+  </main>`;
+}
+
+/* ---------- simulação da equipe (etapas andam sozinhas) ---------- */
+function startSim(first=6000){ clearTimeout(T.sim); T.sim=setTimeout(tick, first); }
+function tick(){
+  const o=S.order; if(!o || o.cancelled || o.unpaid) return;
+  const movable = o.parts.filter(p => o.site ? p.st<p.steps.length-1 : !partDone(p));
+  if(movable.length){ advancePart(movable[o.rr++ % movable.length], o); }
+  else if(o.site && o.dst<2){
+    o.dst++;
+    if(o.dst===1){ o.msgs.unshift(['ok','🛵 <span><b>Saiu para entrega!</b> Tenha o código em mãos.</span>']); notify('🛵 <span><b>Saiu para entrega!</b></span>'); }
+    if(o.dst===2) notify('📦 <span>Pedido marcado como entregue.</span>');
+  }
+  else return refresh();
+  refresh();
+  startSim(4500);
+}
+function advancePart(p,o){
+  if(p.pickup){ p.pickup=false; p.st=p.steps.length-1; toast(`✅ <span>${p.nome}: retirado no balcão</span>`); return; }
+  const readyIx = p.id==='kit' ? 2 : 1;
+  if(!o.site && o.mode==='balcao' && p.st===readyIx){
+    p.pickup=true;
+    o.msgs.unshift(['warn',`🔔 <span><b>${p.nome} pronto!</b> Retire no balcão.</span>`]);
+    notify(`🔔 <span><b>${p.nome} pronto!</b> Retire no balcão.</span>`); return;
+  }
+  p.st=Math.min(p.steps.length-1, p.st+1);
+  if(p.id==='kit' && p.st===2 && !o.site && o.mode==='mesa') notify('🔔 <span><b>Comida pronta!</b> Já vai para a sua mesa.</span>');
+  else if(!o.site && partDone(p)) toast(`✅ <span>${p.nome}: entregue</span>`);
+}
+function refresh(){ if(!modalOpen() && ['menu','track','paid'].includes(S.screen) && !S.ended) render(); }
+
+/* =========================================================
+   CÂMERA, VISITA ENCERRADA, HISTÓRICO
+   ========================================================= */
+function viewScan(){
+  return `<div class="cam" data-act="scan-ok">
+    <button class="hb back" data-act="go" data-v="menu" aria-label="Voltar">←</button>
+    <div class="frame"><i></i><i></i><i></i><i></i><div class="line"></div></div>
+    <p style="font-size:18px;font-weight:900">Aponte para o QR ${isBalcao()?'do balcão':'da mesa'}</p>
+    <p class="hint">Seu carrinho foi mantido.</p>
+  </div>`;
+}
+function viewEnded(){
+  return `<div class="center"><div class="big-ic">👋</div><h2>Visita encerrada</h2><p>Obrigado e volte sempre!</p>
+    <div class="acts">${S.order&&!S.order.cancelled&&!S.order.unpaid?`<button class="btn outline-blue block lg" data-act="end-track">Acompanhar pedido ${S.order.code}</button>`:''}
+    <span class="small muted">Para pedir de novo, leia o QR.</span></div>
+    <div class="powered" style="margin-top:30px"><span class="logo"><img src="logo.svg" alt=""><span class="wm">pede<b>Aí</b></span></span></div></div>`;
+}
+function viewHistory(){
+  return `${header()}<main class="view">
+    <div class="between"><div class="lead">Meus pedidos</div><span class="chip info">Fase 2</span></div>
+    <p class="muted" style="margin:0 0 18px">Confirme que o celular é seu.</p>
+    <div class="field"><label>Celular</label><input class="input" inputmode="tel" placeholder="(13) 99999-0000"></div>
+    <button class="btn outline-blue block" data-act="toast" data-msg="📲 Código enviado pelo WhatsApp">Enviar código</button>
+    <div class="field" style="margin-top:14px"><label>Código</label><input class="input" maxlength="6" inputmode="numeric" placeholder="000000" style="letter-spacing:.3em;text-align:center"></div>
+  </main>${footbar(`<button class="btn primary block lg" data-act="toast" data-msg="Disponível na fase 2">Confirmar</button>`)}`;
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render(){
+  const app=$('#app');
+  const v=app.querySelector('.view'); const keep = v && app.dataset.scr===S.screen ? v.scrollTop : 0;
+  let html;
+  if(S.ended) html=viewEnded();
+  else {
+    if(isSite() && ['qr','scan','ident','history'].includes(S.screen)) S.screen='menu';
+    if(!isSite() && S.screen==='login') S.screen='cart';
+    if(['paid','track'].includes(S.screen) && !S.order) S.screen='menu';
+    if(!isSite() && (S.screen==='qr' || S.qr!=='ok')){ S.screen='qr'; html=viewQR(); }
+    else html=({menu:viewMenu,product:viewProduct,cart:viewCart,ident:viewIdent,login:viewLogin,pay:viewPay,paid:viewPaid,track:viewTrack,scan:viewScan,history:viewHistory}[S.screen]||viewMenu)();
+  }
+  app.innerHTML=html; app.dataset.scr=S.ended?'ended':S.screen;
+  const nv=app.querySelector('.view'); if(nv) nv.scrollTop=keep;
+  syncBar();
+}
+function syncBar(){ $('#pb-situ').value=S.situ; $('#pb-check').value=S.check; $('#pb-pay').value=S.payOutcome; }
+
+/* =========================================================
+   FLUXO DO PEDIDO
+   ========================================================= */
+function placeOrder(){
+  if(!canOrder()) return;
+  if(S.check==='rate'){ notify('⏳ <span><b>Muitas tentativas.</b> Aguarde 1 minuto e tente de novo.</span>'); return; }
+  if(S.check==='expired' && !isSite()){ S.backTo='cart'; S.screen='scan'; render(); notify(`⏰ <span><b>Sua visita expirou.</b> Leia o QR ${isBalcao()?'do balcão':'da mesa'} para continuar.</span>`); clearTimeout(T.scan); T.scan=setTimeout(()=>{ if(S.screen==='scan') scanOk(); }, 4000); return; }
+  if(S.check==='blocked' && !isSite()){ modal(`<h3>🔒 Pedidos bloqueados</h3><p>Por segurança, este celular não pode fazer novos pedidos agora.</p><p>Chame o atendente para continuar. Seus pedidos já pagos seguem normalmente e o carrinho foi mantido.</p><div class="acts"><button class="btn primary lg" data-act="close">Entendi</button></div>`); return; }
+  /* conferência no servidor (preços, estoque) */
+  $('#sheet-root').innerHTML = `<div class="checking"><span class="spin lg"></span>Conferindo seu pedido…</div>`;
+  setTimeout(()=>{
+    closeModal();
+    const first=S.cart[0], p=first&&P(first.pid);
+    if(S.check==='price' && p){ modal(`<h3>Algo mudou</h3><div class="alert" style="margin:8px 0 6px">O preço de <b>&nbsp;${esc(p.nome)}&nbsp;</b> mudou de ${brl(p.preco)} para ${brl(p.preco+2)}.</div><p>Confira antes de continuar.</p><div class="acts"><button class="btn" data-act="close">Voltar</button><button class="btn primary" data-act="diff-ok" data-k="price">Confirmar</button></div>`); return; }
+    if(S.check==='soldout' && S.cart.length){ const last=P(S.cart[S.cart.length-1].pid); modal(`<h3>Algo mudou</h3><div class="alert bad" style="margin:8px 0 6px"><b>${esc(last.nome)}</b>&nbsp;esgotou e saiu do carrinho.</div><p>Confira antes de continuar.</p><div class="acts"><button class="btn" data-act="close">Voltar</button><button class="btn primary" data-act="diff-ok" data-k="soldout">Confirmar</button></div>`); return; }
+    goPay(); render();
+  }, 900);
+}
+function goPay(){ createOrder(); S.order.unpaid=true; S.payStep='choose'; S.method=''; S.attempts=0; S.screen='pay'; }
+function chooseMethod(v){
+  S.method=v; S.payStep = v==='pix'?'pix':'card';
+  const sec = S.payOutcome==='expirado' ? 6 : (v==='pix'?600:300);
+  startCountdown(sec);
+  clearTimeout(T.pix);
+  if(v==='pix' && S.payOutcome!=='expirado') T.pix=setTimeout(()=>{ if(S.payStep==='pix'){ resolvePay(); render(); } }, 7000);
+}
+function startCountdown(sec){
+  S.cd=sec; clearInterval(T.cd);
+  T.cd=setInterval(()=>{
+    if(S.payStep!=='pix' && S.payStep!=='card'){ clearInterval(T.cd); return; }
+    S.cd=Math.max(0,S.cd-1);
+    const el=$('#cd'); if(el){ el.textContent=fmt(S.cd); if(S.payStep==='pix') el.classList.toggle('low',S.cd<60); }
+    if(S.cd===0){ clearInterval(T.cd); clearTimeout(T.pix); clearTimeout(T.card); S.payStep='expired'; S.order=null; closeModal(); if(S.screen==='pay') render(); }
+  },1000);
+}
+function resolvePay(){
+  clearTimeout(T.pix); clearTimeout(T.card);
+  if(S.payOutcome==='recusado'){ clearInterval(T.cd); S.attempts++; S.payStep='declined'; if(S.attempts>=3) S.order=null; return; }
+  if(S.payOutcome==='expirado') return;   /* o relógio cuida */
+  approve();
+}
+function scanOk(){ clearTimeout(T.scan); S.check='ok'; S.screen=S.backTo||'menu'; render(); toast('✅ <span>Visita nova aberta</span>'); }
+
+/* =========================================================
+   ATALHOS DO PROTÓTIPO
+   ========================================================= */
+function preset(v){
+  stopAll(); closeModal(); $('#toast-root').innerHTML='';
+  PRODUCTS.forEach(p=>{ p.preco=BASE_PRICES[p.id]; if(p.id==='p2'||p.id==='f7') p.esgotado=false; });
+  S=fresh(); S.screen='menu';
+  const ident=()=>{ S.identified=true; S.nome='João'; S.tel='(13) 99123-4567'; };
+  const viaCart=chk=>{ seedCart(); ident(); S.check=chk; S.screen='cart'; render(); placeOrder(); };
+  switch(v){
+    case 'qr': S.screen='qr'; break;
+    case 'qr-invalid': S.qr='invalid'; break;
+    case 'qr-revoked': S.qr='revoked'; break;
+    case 'qr-disabled': S.qr='disabled'; break;
+    case 'qr-suspended': S.qr='suspended'; break;
+    case 'menu': break;
+    case 'product': S.prod='p6'; S.screen='product'; break;
+    case 'cart': seedCart(); S.screen='cart'; break;
+    case 'ident': seedCart(); S.screen='ident'; break;
+    case 'check-price': return viaCart('price');
+    case 'check-soldout': return viaCart('soldout');
+    case 'pay': seedCart(); ident(); goPay(); break;
+    case 'pix': seedCart(); ident(); goPay(); chooseMethod('pix'); break;
+    case 'card': seedCart(); ident(); goPay(); chooseMethod('credito'); break;
+    case 'declined': seedCart(); ident(); goPay(); S.method='credito'; S.attempts=1; S.payStep='declined'; break;
+    case 'expired': seedCart(); ident(); S.screen='pay'; S.payStep='expired'; break;
+    case 'paid': seedCart(); ident(); S.feeOn=true; goPay(); S.method='pix'; approve(); break;
+    case 'track': seedCart(); ident(); S.feeOn=true; goPay(); S.method='pix'; approve(); S.screen='track'; S.notifAsked=true; break;
+    case 'closing': S.situ='fecha'; break;
+    case 'paused': S.situ='pausado'; break;
+    case 'closed': S.situ='fechado'; break;
+    case 'offline': S.net='offline'; seedCart(); break;
+    case 'rate': return viaCart('rate');
+    case 'scan': return viaCart('expired');
+    case 'blocked': return viaCart('blocked');
+    case 'pixonly': seedCart(); ident(); S.risk='pixonly'; goPay(); break;
+    case 'custblocked': seedCart(); ident(); S.risk='blocked'; goPay(); break;
+    case 'ended': S.ended=true; break;
+    case 'history': S.screen='history'; break;
+    case 'balcao': S.point='balcao'; S.mode='balcao'; break;
+    case 'foodtruck': S.kind='foodtruck'; S.point='balcao'; S.mode='balcao'; break;
+    case 'site': S.entry='site'; break;
+    case 'site-cart': S.entry='site'; S.logged=true; seedCart(); S.dmode='end'; S.screen='cart'; break;
+    case 'site-login': S.entry='site'; seedCart(); S.where='Guarda-sol azul, posto 4'; S.screen='login'; break;
+    case 'site-track': case 'site-arrived':
+      S.entry='site'; S.logged=true; ident(); seedCart(); S.dmode='end'; S.method='pix'; createOrder(); S.order.paidAt=new Date(); S.cart=[];
+      S.order.parts.forEach(p=>p.st=p.steps.length-1); S.order.dst = v==='site-arrived'?2:1; S.screen='track';
+      if(v==='site-track') startSim(7000);
+      break;
+  }
+  render();
+}
+
+/* =========================================================
+   EVENTOS
+   ========================================================= */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  if(!b.closest('#phone')) return;
+  const a=b.dataset.act, d=b.dataset;
+  if(a==='close-overlay' && e.target!==b) return;
+  switch(a){
+    case 'go':
+      e.stopPropagation();
+      if(S.screen==='pay' && d.v!=='pay' && S.order && S.order.unpaid && ['pix','card','choose'].includes(S.payStep)){ stopAll(); }
+      if(S.screen==='scan') clearTimeout(T.scan);
+      S.screen=d.v; break;
+    case 'menu': {
+      const hasOrder = S.order && !S.order.cancelled && !S.order.unpaid;
+      const it=(act,ic,t,cls='',extra='')=>`<button class="menu-it ${cls}" data-act="${act}"><span class="mi">${ic}</span><span style="flex:1">${t}</span>${extra}</button>`;
+      modal(isSite()
+        ? (S.logged ? `<h3>${esc(ACCT.nome)}</h3>${hasOrder?it('menu-track','🧾','Meu pedido '+S.order.code):''}${it('logout','🚪','Sair','danger')}`
+                    : `<h3>Menu</h3>${hasOrder?it('menu-track','🧾','Meu pedido '+S.order.code):''}${it('login-start','📱','Entrar')}`)
+        : `<h3>Menu</h3>${hasOrder?it('menu-track','🧾','Meu pedido '+S.order.code):''}${it('menu-history','📱','Pedidos em outro celular','','<span class="chip info">Fase 2</span>')}${it('end-visit','👋','Encerrar visita','danger')}`);
+      return; }
+    case 'menu-track': closeModal(); S.screen='track'; break;
+    case 'menu-history': closeModal(); S.screen='history'; break;
+    case 'toast': toast(d.msg); return;
+    case 'close': case 'close-overlay': closeModal(); return;
+    case 'qr-ok': S.screen='menu'; render(); toast(S.situ==='fechado'?'🕒 <span>Fechado agora. Cardápio só para olhar.</span>':(isBalcao()?'👋 <span>Bem-vindo! Balcão</span>':`👋 <span>Bem-vindo! Mesa ${K().mesa}</span>`)); return;
+    case 'qr-retry': S.qr='ok'; S.screen='qr'; break;
+    case 'sec': S.sec=d.id; break;
+    case 'open-prod': S.prod=d.id; S.qty=1; S.obs=''; S.screen='product'; break;
+    case 'qty': S.qty=Math.max(1,Math.min(20,S.qty+ +d.d)); break;
+    case 'add': {
+      const obs=S.obs.trim(); const ex=S.cart.find(i=>i.pid===S.prod && i.obs===obs);
+      if(ex) ex.qty+=S.qty; else S.cart.push({pid:S.prod,qty:S.qty,obs});
+      S.screen='menu'; render(); bumpCart(); toast('✅ <span>Adicionado ao carrinho</span>', 2200); return; }
+    case 'cqty': { const i=S.cart[+d.i]; i.qty+= +d.d; if(i.qty<=0) S.cart.splice(+d.i,1); break; }
+    case 'fee': S.feeOn=b.checked; break;
+    case 'mode': S.mode = isBalcao()?'balcao':d.v; if(S.mode!=='mesa') S.feeOn=false; break;
+    case 'place':
+      if(isSite()){
+        if(S.dmode==='local'){ const w=$('#d-where'); S.where=w?w.value.trim():S.where; if(!S.where){ toast('📍 <span>Diga onde você está</span>'); return; } }
+        else if(!addrList().length){ toast('🏠 <span>Escolha um endereço</span>'); return; }
+        if(!S.logged){ S.lstep='tel'; S.screen='login'; break; }
+        S.identified=true; placeOrder(); return;
+      }
+      if(!S.identified){ S.screen='ident'; break; }
+      placeOrder(); return;
+    case 'dmode': { const w=$('#d-where'); if(w) S.where=w.value; S.dmode=d.v; break; }
+    case 'addr': S.addr=+d.i; break;
+    case 'new-addr': modal(`<h3>Novo endereço</h3><div class="field"><label>Rua e número</label><input class="input" id="na-end" placeholder="Ex.: Av. Conselheiro Nébias, 300"></div><div class="field"><label>Complemento</label><input class="input" id="na-comp" placeholder="Ex.: ap. 41"></div><div class="field"><label>Cidade</label><input class="input" id="na-cid" value="Santos"></div><div class="acts"><button class="btn" data-act="close">Voltar</button><button class="btn primary" data-act="new-addr-ok">Salvar</button></div>`); return;
+    case 'new-addr-ok': { const e1=$('#na-end').value.trim(); if(!e1){ toast('🏠 <span>Informe rua e número</span>'); return; }
+      const comp=$('#na-comp').value.trim(); const a={rot:'Novo', end:e1+(comp?', '+comp:''), cidade:$('#na-cid').value.trim()||'Santos', km:2.5};
+      if(S.logged){ ACCT.addrs.push(a); S.addr=ACCT.addrs.length-1; } else { S.tmpAddr=a; S.addr=0; }
+      closeModal(); toast('✅ <span>Endereço salvo</span>'); break; }
+    case 'login-start': closeModal(); S.lstep='tel'; S.screen='login'; break;
+    case 'logout': closeModal(); S.logged=false; S.identified=false; toast('👋 <span>Você saiu da conta</span>'); break;
+    case 'login-tel': { const n=$('#l-nome').value.trim(), t=$('#l-tel').value.trim(); if(!n||!t){ toast('📱 <span>Informe nome e celular</span>'); return; } S.nome=n; S.tel=t; S.lstep='code'; render(); toast('📲 <span>Código enviado pelo WhatsApp</span>'); const c=$('#l-code'); if(c) c.focus(); return; }
+    case 'resend': toast('📲 <span>Código reenviado</span>'); return;
+    case 'login-ok': { const n=$('#l-nome').value.trim()||S.nome; if(!n){ toast('📱 <span>Informe seu nome</span>'); return; }
+      S.nome=n; ACCT.nome=n; ACCT.tel=S.tel; S.logged=true; if(S.tmpAddr){ ACCT.addrs.push(S.tmpAddr); S.addr=ACCT.addrs.length-1; S.tmpAddr=null; }
+      S.identified=true; S.lstep='tel'; S.screen='cart'; render(); placeOrder(); return; }
+    case 'ident-ok': { const n=$('#i-nome').value.trim(), t=$('#i-tel').value.trim(); if(!n||!t){ toast('📱 <span>Informe nome e celular</span>'); return; }
+      S.nome=n; S.tel=t; S.wpp=$('#i-wpp').checked; S.identified=true; S.screen='cart'; render(); placeOrder(); return; }
+    case 'diff-ok': {
+      if(d.k==='price'){ const p=P(S.cart[0].pid); p.preco+=2; }
+      if(d.k==='soldout'){ const last=S.cart.pop(); P(last.pid).esgotado=true; }
+      S.check='ok'; closeModal();
+      if(!S.cart.length){ S.screen='cart'; break; }
+      goPay(); break; }
+    case 'method': chooseMethod(d.v); break;
+    case 'card-pay': { const btn=$('#pay-btn'); btn.disabled=true; btn.innerHTML='<span class="spin" style="border-color:rgba(255,255,255,.4);border-top-color:#fff"></span> Processando…';
+      clearTimeout(T.card); T.card=setTimeout(()=>{ if(S.payStep==='card'){ resolvePay(); if(S.payOutcome!=='expirado') render(); } }, 1600); return; }
+    case 'pay-back': clearTimeout(T.pix); clearTimeout(T.card); clearInterval(T.cd);
+      if(!S.order){ goPay(); } S.payStep='choose'; S.method=''; break;
+    case 'cancel-unpaid': modal(`<h3>Cancelar o pedido?</h3><p>Nada foi cobrado. Os itens voltam ao cardápio.</p><div class="acts"><button class="btn" data-act="close">Voltar</button><button class="btn danger" data-act="cancel-unpaid-ok">Cancelar pedido</button></div>`); return;
+    case 'cancel-unpaid-ok': stopAll(); S.order=null; S.payStep='choose'; closeModal(); S.screen='cart'; render(); toast('Pedido cancelado. Carrinho mantido.'); return;
+    case 'notif': S.notifAsked=true; render(); toast(d.v==='yes'?'🔔 <span>Notificações ativadas</span>':'Tudo bem. Acompanhe por aqui.'); return;
+    case 'cancel-paid': modal(`<h3>Cancelar o pedido ${S.order.code}?</h3><p>Ninguém começou a preparar. Devolvemos <b>${brl(S.order.total)}</b> na hora.</p><div class="acts"><button class="btn" data-act="close">Voltar</button><button class="btn danger" data-act="cancel-paid-ok">Cancelar e devolver</button></div>`); return;
+    case 'cancel-paid-ok': clearTimeout(T.sim); S.order.cancelled=true; closeModal(); render(); toast('↩️ <span>Pedido cancelado. Devolução a caminho.</span>'); return;
+    case 'recv': S.order.recv=d.v; render(); if(d.v==='no') notify('📣 <span>Avisamos o estabelecimento.</span>'); else toast('😋 <span>Bom apetite!</span>'); return;
+    case 'another': S.screen='menu'; if(S.order && (S.order.cancelled || orderDone(S.order))) S.order=null; render(); toast(isSite()?'Pode pedir de novo!':'Seus dados já estão salvos.'); return;
+    case 'end-visit': modal(`<h3>Encerrar a visita?</h3><p>Para pedir de novo, leia o QR.${S.order&&!S.order.cancelled&&!S.order.unpaid?' Seu pedido continua.':''}</p><div class="acts"><button class="btn" data-act="close">Voltar</button><button class="btn danger" data-act="end-ok">Encerrar</button></div>`); return;
+    case 'end-ok': S.ended=true; S.identified=false; S.cart=[]; closeModal(); break;
+    case 'end-track': S.ended=false; S.screen='track'; S.qr='ok'; break;
+    case 'scan-ok': if(e.target.closest('.back')) return; scanOk(); return;
+  }
+  render();
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='obs'){ S.obs=e.target.value; const n=$('#obs-n'); if(n) n.textContent=S.obs.length; }
+  if(e.target.id==='d-where') S.where=e.target.value;
+});
+
+/* barra do protótipo */
+$('#pb-screen').addEventListener('change',e=>{ const v=e.target.value; if(v) preset(v); e.target.value=''; });
+$('#pb-situ').addEventListener('change',e=>{ S.situ=e.target.value; render(); });
+$('#pb-check').addEventListener('change',e=>{ S.check=e.target.value; });
+$('#pb-pay').addEventListener('change',e=>{ S.payOutcome=e.target.value; });
+$('#pb-reset').addEventListener('click',()=>preset('qr'));
+
+/* abrir direto num estado pela URL: ?entrada=site|qr&tela=cardapio|produto|carrinho|identificacao|entrar|pagamento|comprovante|acompanhamento */
+function initFromURL(){
+  const q=new URLSearchParams(location.search);
+  const site=q.get('entrada')==='site', tela=(q.get('tela')||'').toLowerCase();
+  if(!site && !tela){ render(); return; }
+  const map={cardapio:'menu',menu:'menu',produto:'product',carrinho:'cart',cart:'cart',identificacao:'ident',entrar:'login',login:'login',pagamento:'pay',pay:'pay',comprovante:'paid',acompanhamento:'track',track:'track',qr:'qr'};
+  const scr=map[tela]||(site?'menu':'qr');
+  preset(site?'site':'menu');
+  if(site){ S.entry='site'; S.mode='mesa'; S.feeOn=false; }
+  if(q.get('ponto')==='balcao'){ S.point='balcao'; S.mode='balcao'; }
+  if(q.get('tipo')==='foodtruck'){ S.kind='foodtruck'; if(!site){ S.point='balcao'; S.mode='balcao'; } }
+  const ready=()=>{ seedCart(); if(site){ S.logged=true; S.dmode='end'; S.nome=ACCT.nome; S.tel=ACCT.tel; } else { S.nome='João'; S.tel='(13) 99123-4567'; } S.identified=true; };
+  switch(scr){
+    case 'qr': S.screen='qr'; break;
+    case 'menu': break;
+    case 'product': S.prod=S.kind==='foodtruck'?'f1':'p6'; S.screen='product'; break;
+    case 'cart': seedCart(); if(site){ S.logged=true; S.dmode='end'; } S.screen='cart'; break;
+    case 'ident': seedCart(); S.screen=site?'login':'ident'; break;
+    case 'login': seedCart(); S.screen='login'; break;
+    case 'pay': ready(); goPay(); break;
+    case 'paid': case 'track': ready(); goPay(); S.method='pix'; approve(); S.screen=scr; if(scr==='track') S.notifAsked=true; break;
+  }
+  render();
+}
+initFromURL();
+</script>
+</body>
+</html>

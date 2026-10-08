@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PedeAí Admin</title>
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="marca.css">
+<style>
+/* ---------- moldura ---------- */
+.stage{align-items:flex-start}
+.wide{width:100%;max-width:1320px;min-height:800px;background:var(--bg);border-radius:20px;border:1px solid var(--line);box-shadow:var(--shadow-lg);overflow:hidden;display:flex}
+#app{display:flex;flex-direction:column;flex:1;min-width:0}
+.wide #app{flex-direction:row}
+.proto-bar .sp{flex:1}
+.proto-bar .seg{display:inline-flex;border:1px solid #444;border-radius:8px;overflow:hidden}
+.proto-bar .seg button{border:0;border-radius:0;background:#2c2c2c}
+.proto-bar .seg button[aria-pressed="true"]{background:#fff;color:var(--grafite);font-weight:800}
+
+/* ---------- login ---------- */
+.auth{flex:1;display:flex;align-items:center;justify-content:center;padding:28px 16px;background:radial-gradient(1200px 500px at 50% -10%,#0A63A8 0%,var(--azul) 45%,var(--azul-esc) 100%)}
+.auth-card{background:var(--surface);border-radius:22px;box-shadow:var(--shadow-lg);padding:28px 22px;width:100%;max-width:400px}
+.auth-card .logo{margin-bottom:4px}
+.auth-card h2{font-size:22px;margin:18px 0 4px;font-weight:900}
+.auth-card .sub{color:var(--muted);margin-bottom:18px}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:14px 0}
+.divider::before,.divider::after{content:"";flex:1;border-top:1px solid var(--line)}
+.g-btn{gap:10px}
+.g-btn .g{width:18px;height:18px;border-radius:50%;background:conic-gradient(#EA4335 0 25%,#FBBC05 0 50%,#34A853 0 75%,#4285F4 0);display:inline-block}
+.otp{display:flex;gap:8px;justify-content:center;margin:6px 0 16px}
+.otp input{width:44px;height:54px;text-align:center;font-size:22px;font-weight:800;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);outline:none}
+.otp input:focus{border-color:var(--azul);box-shadow:0 0 0 3px var(--azul-claro)}
+.shield{width:54px;height:54px;border-radius:16px;background:var(--azul-claro);display:grid;place-items:center;font-size:26px;margin-bottom:6px}
+.auth-foot{text-align:center;color:rgba(255,255,255,.7);font-size:12.5px;margin-top:14px;font-weight:700}
+.link{border:0;background:none;color:var(--azul);font-weight:700;padding:0;cursor:pointer}
+.link.danger{color:var(--bad)}
+
+/* ---------- navegação ---------- */
+.side{width:240px;flex:none;background:var(--azul);color:#fff;display:flex;flex-direction:column;padding:18px 12px}
+.side .brandbox{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}
+.badge-logo{background:#fff;border-radius:11px;width:40px;height:40px;display:grid;place-items:center;flex:none}
+.badge-logo img{width:30px;height:30px}
+.side .wm{font-weight:900;font-size:22px;letter-spacing:-.02em;color:#fff;line-height:1}
+.side .wm b{color:var(--laranja)}
+.side .tagline{font-size:10px;font-weight:800;letter-spacing:.14em;opacity:.7;margin-top:3px}
+.side nav{display:flex;flex-direction:column;gap:2px}
+.side nav button{display:flex;align-items:center;gap:10px;border:0;background:transparent;color:rgba(255,255,255,.82);font-weight:800;padding:10px 12px;border-radius:12px;text-align:left}
+.side nav button:hover{background:rgba(255,255,255,.08);color:#fff}
+.side nav button[aria-selected="true"]{background:#fff;color:var(--azul)}
+.side nav .ic{width:22px;text-align:center}
+.side nav .n{margin-left:auto;background:var(--laranja);color:#fff;border-radius:999px;font-size:11px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 6px}
+.side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 8px 0;border-top:1px solid rgba(255,255,255,.15)}
+.ava{width:36px;height:36px;border-radius:50%;background:var(--laranja);color:#fff;display:grid;place-items:center;font-weight:900;flex:none;border:0}
+.side .me .who{font-weight:800;font-size:13.5px;line-height:1.2}
+.side .me .who small{display:block;opacity:.7;font-weight:700}
+.side .me button.out{margin-left:auto;background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:10px;padding:6px 10px;font-weight:800;font-size:12.5px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.pagehead{display:flex;align-items:center;gap:12px;padding:22px 28px 6px}
+.pagehead h1{margin:0;font-size:24px;font-weight:900;flex:1}
+.content{padding:8px 28px 32px}
+.phone .content{padding:8px 14px 28px}
+.phone .pagehead{padding:16px 14px 2px}
+.phone .pagehead h1{font-size:21px}
+.mtop{background:var(--azul);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 14px;position:sticky;top:0;z-index:5}
+.mtop .wm{font-weight:900;font-size:20px;color:#fff;letter-spacing:-.02em}
+.mtop .wm b{color:var(--laranja)}
+.mtop .tagline{font-size:9px;font-weight:800;letter-spacing:.14em;opacity:.7}
+.mtabs{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--line);scrollbar-width:none}
+.mtabs button{border:0;background:var(--areia);padding:8px 13px;border-radius:999px;font-weight:800;color:var(--muted);white-space:nowrap;font-size:13.5px}
+.mtabs button[aria-selected="true"]{background:var(--azul);color:#fff}
+.mtabs .n{background:var(--laranja);color:#fff;border-radius:999px;font-size:11px;padding:1px 6px;margin-left:4px}
+.menu-pop{position:absolute;right:10px;top:54px;background:var(--surface);color:var(--text);border-radius:14px;box-shadow:var(--shadow-lg);padding:14px;min-width:220px;z-index:30}
+
+/* ---------- blocos ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 14px}
+.phone .kpis{grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.kpi .v{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--azul);letter-spacing:-.01em}
+.phone .kpi .v{font-size:18px}
+.kpi .l{font-size:12.5px;color:var(--muted);font-weight:700}
+.kpi.hot .v{color:var(--bad)}
+.toolbar{display:flex;gap:8px;align-items:center;margin:10px 0}
+.toolbar .grow{flex:1}
+.cnt{background:var(--laranja);color:#fff;border-radius:999px;font-size:11px;min-width:19px;height:19px;display:inline-grid;place-items:center;padding:0 5px;font-weight:900}
+.fpanel{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;padding:12px}
+.phone .fpanel{grid-template-columns:1fr}
+.alert{justify-content:space-between;margin-bottom:10px}
+.alert .btn{flex:none}
+.est-ava{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:21px;flex:none}
+.est-ava.lg{width:64px;height:64px;border-radius:18px;font-size:34px}
+.t-quiosque{background:var(--azul-claro)} .t-foodtruck{background:var(--laranja-claro)} .t-outro{background:var(--verde-claro)}
+.lcards{display:flex;flex-direction:column;gap:10px}
+.lcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;cursor:default}
+.lcard.click{cursor:pointer}
+.lcard.click:hover{border-color:var(--line-strong)}
+.lcard .top{display:flex;align-items:center;gap:10px}
+.lcard .top .nm{flex:1;min-width:0}
+.lcard .top b{font-size:15.5px}
+.lcard .sub{font-size:12.5px;color:var(--muted);font-weight:600}
+.lcard .kv2{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.lbl{display:block;font-size:11.5px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.lcard .act{margin-top:12px}
+.table td{vertical-align:middle}
+.table tr.click{cursor:pointer}
+.table tr.click:hover td{background:var(--surface2)}
+.table .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.table tr.total td{background:var(--azul-claro);font-weight:900;color:var(--azul-esc)}
+.cell-est{display:flex;align-items:center;gap:10px}
+.cell-est .sub{font-size:12.5px;color:var(--muted);font-weight:600}
+.empty{text-align:center;color:var(--muted);padding:30px 10px;font-weight:700}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.panel h3{margin:0 0 10px;font-size:15.5px;font-weight:900}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.phone .cols2{grid-template-columns:1fr}
+.item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.bar{height:10px;background:var(--areia-esc);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--verde);border-radius:999px}
+.big{font-size:34px;font-weight:900;color:var(--azul);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.fold{display:flex;align-items:center;gap:8px;border:0;background:none;font-weight:900;font-size:15.5px;padding:6px 0;margin-top:16px}
+.back{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--azul);font-weight:800;padding:4px 0}
+.dhead{display:flex;align-items:center;gap:14px;margin:8px 0 14px;flex-wrap:wrap}
+.dhead .nm{flex:1;min-width:180px}
+.dhead h2{margin:0;font-size:22px;font-weight:900}
+.timeline{position:relative;margin:12px 0 14px;padding-left:22px}
+.timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl{position:relative;padding:4px 0 10px}
+.tl::before{content:"";position:absolute;left:-20px;top:7px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--line-strong)}
+.tl.done::before{background:var(--laranja);border-color:var(--laranja)}
+.tl.final.done::before{background:var(--bad);border-color:var(--bad)}
+.tl b{font-size:14px}
+.kv-list .r{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.kv-list .r:first-child{border-top:0}
+.kv-list .r span:first-child{color:var(--muted);font-weight:700}
+.kv-list .r span:last-child{font-weight:800;text-align:right}
+.imp-band{background:var(--warn-bg);color:#6B4300;font-weight:800;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #F3D9A6}
+.imp-band .grow{flex:1}
+.op-top{background:var(--surface);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.op-tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.op-tabs span{padding:7px 12px;border-radius:999px;font-weight:800;color:var(--muted);font-size:13.5px;white-space:nowrap;background:var(--areia)}
+.op-tabs span.on{background:var(--azul);color:#fff}
+.ro input,.ro select{pointer-events:none;background:var(--surface2)}
+/* chat do ticket */
+.thread{display:flex;flex-direction:column;gap:8px;margin:14px 0;max-height:300px;overflow:auto;padding:4px}
+.msg{max-width:85%;padding:10px 12px;border-radius:14px 14px 14px 4px;background:var(--areia);font-size:14px}
+.msg.me{align-self:flex-end;background:var(--azul);color:#fff;border-radius:14px 14px 4px 14px}
+.msg small{display:block;font-weight:800;opacity:.75;margin-bottom:2px;font-size:11.5px}
+.sheet h3{margin:0 0 6px;font-size:19px;font-weight:900}
+.sheet .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.sheet-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;margin-top:8px;font-weight:800}
+.sheet-opt:hover{border-color:var(--azul)}
+.sheet-opt .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:19px;background:var(--azul-claro)}
+.sheet-opt small{display:block;color:var(--muted);font-weight:600}
+.days{display:flex;gap:8px;align-items:center}
+.days .input{width:72px;text-align:center}
+.doc{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:14px;max-height:230px;overflow:auto;font-size:13.5px;margin:12px 0}
+.doc p{margin:0 0 8px}
+.gest{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px;background:var(--bg)}
+.gest .box{width:100%;max-width:440px}
+.gest .logo{margin-bottom:16px}
+.alert.col{flex-direction:column;align-items:flex-start;gap:4px}
+.mono{font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.only-phone{display:none} .phone .only-phone{display:initial}
+</style>
+</head>
+<body>
+<div class="proto-bar">
+  <a href="index.html">← Protótipos</a>
+  <b>PedeAí Admin</b>
+  <span class="sp"></span>
+  <label>Tela <select id="pb-jump"></select></label>
+  <span class="seg" id="pb-frame"><button data-f="phone">Celular</button><button data-f="wide">Tela grande</button></span>
+</div>
+<div class="stage"><div id="device"><div id="app"></div></div></div>
+<div id="modal-root"></div>
+
+<script>
+/* ================= DADOS ================= */
+const HOJE='2026-10-08';
+const ADMIN={nome:'Guilherme Toso',ini:'GT',perfil:'Administrador'};
+let BASE_FEE=5.0;
+const S={screen:'login',tab:'est',kid:null,frame:(window.innerWidth<820?'phone':'wide'),menu:false,hist:false,
+  fk:{q:'',tipo:'',situ:'',verif:'',alerta:'',open:false},fin:{per:'2026-09'},fb:{q:'',nivel:'',open:false},
+  ft:{q:'',orig:'',st:'',open:false},au:{q:''},lgpdQ:'',lgpdFound:false,etapas:[15,7,1]};
+let KIOSKS=[
+ {id:'k1',nome:'Barraca da Praia',emoji:'⛱️',tipo:'quiosque',razao:'Barraca da Praia Alimentos LTDA',cnpj:'12.345.678/0001-90',gestor:'Marcos Andrade',tel:'(13) 99712-4410',email:'marcos@barracadapraia.com.br',situ:'ativo',verif:'verificado',fee:null,vendas:48230.50,cancel:3.1,cb:0,termos:'v3',over:{},proc:null},
+ {id:'k2',nome:'Quiosque do Zé',emoji:'🥥',tipo:'quiosque',razao:'J. Silva Bebidas ME',cnpj:'98.765.432/0001-10',gestor:'José Silva',tel:'(13) 99645-0022',email:'ze@quiosquedoze.com.br',situ:'ativo',verif:'verificado',fee:4.0,vendas:91540.00,cancel:12.4,cb:2,termos:'v2',over:{},proc:{motivo:'Cancelamento acima de 10% por 2 meses',inicio:'2026-09-28',enviados:1}},
+ {id:'k3',nome:'Maré Alta',emoji:'🌊',tipo:'quiosque',razao:'M. Souza Alimentos LTDA',cnpj:'11.222.333/0001-44',gestor:'Maria Souza',tel:'(13) 99130-7788',email:'maria@marealta.com.br',situ:'implantacao',verif:'em-analise',fee:null,vendas:0,cancel:0,cb:0,termos:'v3',over:{},proc:null},
+ {id:'k4',nome:'Coco & Cia',emoji:'🍹',tipo:'quiosque',razao:'Coco e Cia Comércio LTDA',cnpj:'55.666.777/0001-88',gestor:'Paulo Lima',tel:'(13) 99854-3001',email:'paulo@cococia.com.br',situ:'suspenso',verif:'verificado',fee:null,vendas:12880.00,cancel:18.9,cb:4,termos:'v2',over:{},proc:{motivo:'Contestações repetidas no cartão, sem contato',inicio:'2026-09-10',enviados:4},suspensoEm:'2026-09-26'},
+ {id:'k5',nome:'Pé na Areia',emoji:'🦀',tipo:'quiosque',razao:'Pé na Areia Bar LTDA',cnpj:'22.333.444/0001-55',gestor:'Ana Rocha',tel:'(13) 99277-1505',email:'ana@penaareia.com.br',situ:'ativo',verif:'recusado',fee:null,vendas:30110.20,cancel:6.0,cb:1,termos:'v3',over:{pix:15},proc:null},
+ {id:'k7',nome:'Brasa Truck',emoji:'🍔',tipo:'foodtruck',razao:'Brasa Lanches LTDA',cnpj:'44.555.666/0001-77',gestor:'Carla Nunes',tel:'(13) 99388-9070',email:'carla@brasatruck.com.br',situ:'ativo',verif:'verificado',fee:null,vendas:22410.00,cancel:11.2,cb:0,termos:'v3',over:{},proc:null},
+ {id:'k8',nome:'Taco Truck Santos',emoji:'🌮',tipo:'foodtruck',razao:'TT Santos Alimentos ME',cnpj:'66.777.888/0001-99',gestor:'Bruno Reis',tel:'(13) 99021-6633',email:'bruno@tacotruck.com.br',situ:'implantacao',verif:'em-analise',fee:null,vendas:0,cancel:0,cb:0,termos:'v3',over:{},proc:null},
+ {id:'k9',nome:'Lanchonete do Clube',emoji:'🥪',tipo:'outro',razao:'Clube Náutico Lanches ME',cnpj:'77.888.999/0001-11',gestor:'Lúcia Prado',tel:'(13) 99560-4121',email:'lucia@clubelanches.com.br',situ:'ativo',verif:'verificado',fee:null,vendas:9870.00,cancel:2.1,cb:0,termos:'v3',over:{},proc:null},
+ {id:'k6',nome:'Sorveteria Onda',emoji:'🍦',tipo:'quiosque',razao:'Onda Gelados ME',cnpj:'33.444.555/0001-66',gestor:'Rui Alves',tel:'(13) 99403-8812',email:'rui@sorveteriaonda.com.br',situ:'encerrado',verif:'verificado',fee:null,vendas:0,cancel:0,cb:0,termos:'v1',over:{},proc:null},
+];
+const TIPO={quiosque:['Quiosque','info'],foodtruck:['Foodtruck','orange'],outro:['Outro','']};
+const SITU={implantacao:['Em configuração','warn'],ativo:['Ativo','ok'],suspenso:['Suspenso','bad'],encerrado:['Encerrado','']};
+const VERIF={pendente:['Pendente',''],'em-analise':['Em análise','info'],verificado:['Verificado','ok'],recusado:['Recusado','bad']};
+let TERMS=[
+ {v:'v1',vig:'2026-06-01',resumo:'Versão inicial'},
+ {v:'v2',vig:'2026-08-15',resumo:'Divisão do pagamento no Pix'},
+ {v:'v3',vig:'2026-09-10',resumo:'Taxa de serviço opcional e regras de estorno'}];
+let BLOCKS=[
+ {id:'b1',tel:'(21) 98888-1234',card:'Visa •••• 4021',nivel:'alerta',cb:1,origem:'1ª contestação · Quiosque do Zé',desde:'2026-09-30'},
+ {id:'b2',tel:'(11) 97777-5678',card:'Master •••• 7710',nivel:'so-pix',cb:2,origem:'2ª contestação · Coco & Cia',desde:'2026-09-21'},
+ {id:'b3',tel:'(13) 96666-4321',card:'Elo •••• 0934',nivel:'bloqueado',cb:3,origem:'Fraude evidente · equipe PedeAí',desde:'2026-09-15'}];
+const NIVEL={alerta:['Alerta','warn'],'so-pix':['Só Pix','info'],bloqueado:['Bloqueado','bad']};
+let TICKETS=[
+ {id:'T-104',orig:'cliente',de:'(13) 96666-4321',vinc:'Bloqueio (13) •••••-4321',assunto:'Contesto o bloqueio',st:'aberto',em:'07/10 18:22',msgs:[['cliente','Fui bloqueado e não fiz nada. Meu cartão foi clonado em setembro.']]},
+ {id:'T-103',orig:'gestor',de:'Paulo Lima · Coco & Cia',vinc:'Coco & Cia',assunto:'Entender a suspensão',st:'andamento',em:'06/10 10:05',msgs:[['gestor','Recebi o aviso de suspensão. Como resolvo?'],['admin','Olá, Paulo! A suspensão foi por contestações repetidas. Podemos conversar amanhã às 10h?']]},
+ {id:'T-102',orig:'gestor',de:'Ana Rocha · Pé na Areia',vinc:'Pé na Areia',assunto:'Alterar CNPJ',st:'aberto',em:'05/10 14:40',msgs:[['gestor','Mudamos a empresa para um novo CNPJ. Seguem os documentos.']]},
+ {id:'T-101',orig:'cliente',de:'carlos.m@email.com',vinc:'—',assunto:'Apagar meus dados (LGPD)',st:'resolvido',em:'28/09 09:12',msgs:[['cliente','Quero que apaguem meus dados.'],['admin','Feito! Seus dados foram apagados em 29/09.']]}];
+const TST={aberto:['Aberto','warn'],andamento:['Em andamento','info'],resolvido:['Resolvido','ok']};
+let AUDIT=[
+ {em:'2026-10-05 09:12',quem:ADMIN.nome,acao:'Iniciou suspensão',alvo:'Quiosque do Zé',det:'Cancelamento acima de 10%'},
+ {em:'2026-10-04 17:40',quem:ADMIN.nome,acao:'Entrar como (leitura)',alvo:'Pé na Areia',det:'Dúvida sobre horário'},
+ {em:'2026-10-03 11:05',quem:ADMIN.nome,acao:'Comissão alterada',alvo:'Quiosque do Zé',det:'5,0% → 4,0%'},
+ {em:'2026-09-29 15:22',quem:ADMIN.nome,acao:'Dados apagados (LGPD)',alvo:'Cliente (13) •••••-1111',det:'Ticket T-101'},
+ {em:'2026-09-26 08:00',quem:'Sistema',acao:'Estabelecimento suspenso',alvo:'Coco & Cia',det:'Sem contato após 3 avisos'}];
+
+/* ================= UTILITÁRIOS ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const brl=v=>'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=v=>Number(v).toFixed(1).replace('.',',')+'%';
+const fmtD=iso=>iso.slice(0,10).split('-').reverse().join('/');
+const fmtDT=s=>fmtD(s.slice(0,10))+' '+s.slice(11);
+const addDays=(iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
+const daysTo=iso=>Math.round((new Date(iso+'T12:00:00')-new Date(HOJE+'T12:00:00'))/864e5);
+const chip=([t,c])=>`<span class="chip ${c}">${t}</span>`;
+const K=id=>KIOSKS.find(k=>k.id===id);
+const feeOf=k=>k.fee==null?BASE_FEE:k.fee;
+const feeTxt=k=>`${pct(feeOf(k))} <span class="muted small">${k.fee==null?'base':'negociada'}</span>`;
+const ava=(k,lg)=>`<span class="est-ava t-${k.tipo} ${lg?'lg':''}">${k.emoji}</span>`;
+const curTerms=()=>TERMS[TERMS.length-1];
+const termsDeadline=()=>addDays(curTerms().vig,30);
+const termsSusp=()=>addDays(termsDeadline(),S.etapas[0]);
+const wide=()=>S.frame==='wide';
+const nowISO=()=>{const n=new Date();return HOJE+' '+n.toTimeString().slice(0,5);};
+function audit(acao,alvo,det){AUDIT.unshift({em:nowISO(),quem:ADMIN.nome,acao,alvo,det:det||''});}
+function alertsOf(k){const a=[];if(k.cancel>10)a.push(`<span class="chip bad">Cancel. ${pct(k.cancel)}</span>`);if(k.cb>0)a.push(`<span class="chip warn">${k.cb} contestaç${k.cb>1?'ões':'ão'}</span>`);if(k.proc&&k.situ!=='suspenso')a.push(`<span class="chip bad">Em suspensão</span>`);return a;}
+function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2800);}
+function modal(html){$('#modal-root').innerHTML=`<div class="overlay" data-act="close-overlay"><div class="sheet" role="dialog">${html}</div></div>`;}
+function closeModal(){$('#modal-root').innerHTML='';}
+function confirmModal(title,text,act,id,label){modal(`<h3>${title}</h3><p class="muted">${text}</p><div class="foot"><button class="btn" data-act="close">Voltar</button><button class="btn danger" data-act="${act}" data-id="${id||''}">${label||'Confirmar'}</button></div>`);}
+const searchBox=(key,ph)=>`<div class="search"><input class="input" placeholder="${ph||'Buscar'}" data-filter="${key}" value="${esc(key.split('.').reduce((o,k)=>o[k],S))}"></div>`;
+const filtBtn=(act,n)=>`<button class="btn" data-act="${act}">⚙ Filtros${n?` <span class="cnt">${n}</span>`:''}</button>`;
+const sel=(key,label,opts)=>{const cur=key.split('.').reduce((o,k)=>o[k],S);return `<select class="input" data-filter="${key}"><option value="">${label}</option>${opts.map(([v,l])=>`<option value="${v}" ${cur===v?'selected':''}>${l}</option>`).join('')}</select>`;};
+
+/* ================= LOGIN ================= */
+function viewLogin(){
+  const logo=`<span class="logo"><img src="logo.svg" alt=""><span><span class="wm">pede<b>Aí</b></span><span class="tag">ADMINISTRAÇÃO</span></span></span>`;
+  if(S.screen==='2fa') return `<div class="auth"><div style="width:100%;max-width:400px"><div class="auth-card">
+    ${logo}
+    <h2>Confirme que é você</h2><div class="sub">Código de 6 dígitos do app autenticador.</div>
+    <div class="otp">${[0,1,2,3,4,5].map(i=>`<input inputmode="numeric" maxlength="1" data-otp="${i}" aria-label="Dígito ${i+1}">`).join('')}</div>
+    <button class="btn primary block" data-act="login-ok">Confirmar</button>
+    <div class="between" style="margin-top:14px"><button class="link" data-act="toast" data-msg="Código enviado por SMS">Receber por SMS</button><button class="link" data-act="go" data-v="login">Voltar</button></div>
+  </div><div class="auth-foot">🔒 2 etapas obrigatória · admin.pedeai.com.br</div></div></div>`;
+  return `<div class="auth"><div style="width:100%;max-width:400px"><div class="auth-card">
+    ${logo}
+    <h2>Entrar</h2><div class="sub">Painel da equipe PedeAí</div>
+    <div class="field"><label>E-mail</label><input class="input" type="email" value="guilherme@pedeai.com.br"></div>
+    <div class="field"><label>Senha</label><input class="input" type="password" value="senhasecreta"></div>
+    <button class="btn primary block" data-act="go" data-v="2fa">Entrar</button>
+    <div class="divider">ou</div>
+    <button class="btn block g-btn" data-act="go" data-v="2fa"><span class="g"></span> Entrar com Google</button>
+    <div style="text-align:center;margin-top:14px"><button class="link" data-act="toast" data-msg="Link de troca de senha enviado">Esqueceu a senha?</button></div>
+  </div><div class="auth-foot">admin.pedeai.com.br</div></div></div>`;
+}
+
+/* ================= NAVEGAÇÃO ================= */
+const TABS=[['est','🏪','Estabelecimentos'],['fin','💰','Financeiro'],['termos','📄','Comissão e termos'],['bloq','🚫','Lista de bloqueio'],['tickets','💬','Tickets'],['lgpd','🛡️','LGPD'],['aud','🕑','Auditoria']];
+const TITLE={est:'Estabelecimentos',fin:'Financeiro',termos:'Comissão e termos',bloq:'Lista de bloqueio',tickets:'Tickets',lgpd:'LGPD',aud:'Auditoria'};
+const openTickets=()=>TICKETS.filter(t=>t.st!=='resolvido').length;
+function shell(body,headExtra){
+  const n=openTickets();
+  const title=S.kid&&S.tab==='est'?'':`<div class="pagehead"><h1>${TITLE[S.tab]}</h1>${headExtra||''}</div>`;
+  if(wide()) return `<aside class="side">
+      <div class="brandbox"><span class="badge-logo"><img src="logo.svg" alt=""></span><div><div class="wm">pede<b>Aí</b></div><div class="tagline">ADMINISTRAÇÃO</div></div></div>
+      <nav>${TABS.map(([t,ic,l])=>`<button data-act="tab" data-tab="${t}" aria-selected="${S.tab===t}"><span class="ic">${ic}</span>${l}${t==='tickets'&&n?`<span class="n">${n}</span>`:''}</button>`).join('')}</nav>
+      <div class="me"><span class="ava">${ADMIN.ini}</span><div class="who">${ADMIN.nome}<small>${ADMIN.perfil}</small></div><button class="out" data-act="logout">Sair</button></div>
+    </aside><div class="main">${title}<div class="content">${body}</div></div>`;
+  return `<div class="main" style="position:relative">
+    <div class="mtop"><span class="badge-logo" style="width:34px;height:34px"><img src="logo.svg" alt="" style="width:26px;height:26px"></span><div style="flex:1"><div class="wm">pede<b>Aí</b></div><div class="tagline">ADMINISTRAÇÃO</div></div><button class="ava" data-act="menu" aria-label="Perfil">${ADMIN.ini}</button></div>
+    ${S.menu?`<div class="menu-pop"><b>${ADMIN.nome}</b><div class="muted small" style="margin-bottom:10px">${ADMIN.perfil} · 2 etapas ativa</div><button class="btn sm block" data-act="logout">Sair</button></div>`:''}
+    <nav class="mtabs">${TABS.map(([t,ic,l])=>`<button data-act="tab" data-tab="${t}" aria-selected="${S.tab===t}">${ic} ${l}${t==='tickets'&&n?`<span class="n">${n}</span>`:''}</button>`).join('')}</nav>
+    ${title}<div class="content">${body}</div></div>`;
+}
+
+/* ================= ESTABELECIMENTOS ================= */
+function viewEst(){
+  if(S.kid) return viewKiosk(K(S.kid));
+  const f=S.fk,q=f.q.toLowerCase();
+  const list=KIOSKS.filter(k=>(!q||(k.nome+k.cnpj+k.gestor).toLowerCase().includes(q))&&(!f.tipo||k.tipo===f.tipo)&&(!f.situ||k.situ===f.situ)&&(!f.verif||k.verif===f.verif)
+    &&(!f.alerta||(f.alerta==='cancel'?k.cancel>10:f.alerta==='cb'?k.cb>0:!!k.proc)));
+  const hot=KIOSKS.filter(k=>k.cancel>10&&k.situ!=='encerrado');
+  const nf=[f.tipo,f.situ,f.verif,f.alerta].filter(Boolean).length;
+  const vendas=KIOSKS.reduce((s,k)=>s+k.vendas,0);
+  let rows;
+  if(!list.length) rows='<div class="empty">Nenhum estabelecimento</div>';
+  else if(wide()) rows=`<table class="table"><thead><tr><th>Estabelecimento</th><th>Situação</th><th>Recebimento</th><th>Comissão</th><th class="n">Vendas do mês</th><th>Alertas</th><th></th></tr></thead><tbody>
+    ${list.map(k=>`<tr class="click" data-act="open-k" data-id="${k.id}"><td><div class="cell-est">${ava(k)}<div><b>${esc(k.nome)}</b> ${chip(TIPO[k.tipo])}<div class="sub">${esc(k.cnpj)} · ${esc(k.gestor)}</div></div></div></td>
+      <td>${chip(SITU[k.situ])}</td><td>${chip(VERIF[k.verif])}</td><td>${feeTxt(k)}</td><td class="n"><b>${brl(k.vendas)}</b></td>
+      <td><div class="row" style="flex-wrap:wrap;gap:4px">${alertsOf(k).join('')||'<span class="muted">—</span>'}</div></td>
+      <td><button class="icon-btn" data-act="contato" data-id="${k.id}" title="Falar com o gestor">✉</button></td></tr>`).join('')}</tbody></table>`;
+  else rows=`<div class="lcards">${list.map(k=>{const al=alertsOf(k);return `<div class="lcard click" data-act="open-k" data-id="${k.id}">
+      <div class="top">${ava(k)}<div class="nm"><b>${esc(k.nome)}</b> ${chip(TIPO[k.tipo])}<div class="sub">${esc(k.cnpj)} · ${esc(k.gestor)}</div></div></div>
+      <hr class="sep">
+      <div class="kv2"><div><span class="lbl">Situação</span>${chip(SITU[k.situ])}</div><div><span class="lbl">Recebimento</span>${chip(VERIF[k.verif])}</div>
+      <div><span class="lbl">Comissão</span><b>${feeTxt(k)}</b></div><div><span class="lbl">Vendas</span><b class="num">${brl(k.vendas)}</b></div></div>
+      ${al.length?`<div class="tags">${al.join('')}</div>`:''}
+      <div class="act"><button class="btn sm block" data-act="contato" data-id="${k.id}">✉ Falar com o gestor</button></div></div>`;}).join('')}</div>`;
+  return shell(`
+  <div class="kpis">
+    <div class="kpi"><div class="v">${KIOSKS.filter(k=>k.situ==='ativo').length}</div><div class="l">Ativos</div></div>
+    <div class="kpi"><div class="v">${KIOSKS.filter(k=>k.situ==='implantacao').length}</div><div class="l">Em configuração</div></div>
+    <div class="kpi"><div class="v">${brl(vendas).replace(/,\d\d$/,'')}</div><div class="l">Vendas do mês</div></div>
+    <div class="kpi ${hot.length?'hot':''}"><div class="v">${hot.length}</div><div class="l">Cancelamento &gt; 10%</div></div>
+  </div>
+  ${hot.length&&f.alerta!=='cancel'?`<div class="alert"><span>⚠ ${hot.length} estabelecimento${hot.length>1?'s':''} com cancelamento acima de 10% no mês</span><button class="btn sm" data-act="fk-hot">Ver</button></div>`:''}
+  <div class="toolbar">${searchBox('fk.q','Buscar nome, CNPJ ou gestor')}${filtBtn('fk-open',nf)}</div>
+  ${f.open?`<div class="panel fpanel">
+    ${sel('fk.tipo','Tipo: todos',Object.entries(TIPO).map(([v,[l]])=>[v,l]))}
+    ${sel('fk.situ','Situação: todas',Object.entries(SITU).map(([v,[l]])=>[v,l]))}
+    ${sel('fk.verif','Recebimento: todos',Object.entries(VERIF).map(([v,[l]])=>[v,l]))}
+    ${sel('fk.alerta','Alertas: todos',[['cancel','Cancelamento > 10%'],['cb','Com contestações'],['proc','Em suspensão']])}
+    ${nf?`<button class="link" data-act="fk-clear" style="justify-self:start">Limpar filtros</button>`:''}
+  </div>`:''}
+  ${rows}`);
+}
+function procTimeline(k){
+  const e=S.etapas,env=k.proc?k.proc.enviados:0;
+  const st=[[`1º aviso · ${e[0]} dias`,0],[`2º aviso · ${e[1]} dias`,1],[`3º aviso · ${e[2]} dia${e[2]>1?'s':''}`,2],['Suspensão',3]];
+  return `<div class="timeline">${st.map(([t,i])=>`<div class="tl ${i===3?'final':''} ${env>i?'done':''}"><b>${t}</b><div class="muted small">${env>i?(i===3?'Executada':'Enviado · app + WhatsApp'):'Agendado'}</div></div>`).join('')}</div>`;
+}
+function viewKiosk(k){
+  const ov=k.over,al=alertsOf(k);
+  let susp;
+  if(k.situ==='suspenso') susp=`<div class="row" style="flex-wrap:wrap">${chip(['Suspenso desde '+fmtD(k.suspensoEm||HOJE),'bad'])}</div><p class="small"><b>Motivo:</b> ${esc(k.proc?k.proc.motivo:'—')}</p>
+    <div class="row" style="flex-wrap:wrap"><button class="btn primary" data-act="k-reativar" data-id="${k.id}">Reativar</button><button class="btn" data-act="jump" data-v="g-susp">Ver tela do gestor</button><button class="btn danger" data-act="k-encerrar" data-id="${k.id}">Encerrar</button></div>`;
+  else if(k.situ==='encerrado') susp=`${chip(['Encerrado',''])}<p class="small muted">Só histórico. Não recebe pedidos.</p>`;
+  else if(k.proc) susp=`<div class="row" style="flex-wrap:wrap">${chip(['Suspensão em andamento','bad'])}<span class="muted small">desde ${fmtD(k.proc.inicio)}</span></div>
+    <p class="small" style="margin:10px 0 0"><b>Motivo:</b> ${esc(k.proc.motivo)}</p>${procTimeline(k)}
+    <div class="row" style="flex-wrap:wrap"><button class="btn" data-act="k-proc-cancel" data-id="${k.id}">Cancelar processo</button><button class="btn" data-act="k-aviso" data-id="${k.id}">Próximo aviso</button><button class="btn danger" data-act="k-suspender" data-id="${k.id}">Suspender agora</button></div>`;
+  else susp=`<p class="small muted" style="margin-top:0">Nenhum processo em andamento.</p><div class="row" style="flex-wrap:wrap"><button class="btn danger" data-act="k-proc" data-id="${k.id}">Iniciar suspensão</button><button class="btn" data-act="k-encerrar" data-id="${k.id}">Encerrar</button></div>`;
+  const hist=AUDIT.filter(a=>a.alvo===k.nome);
+  const ct=curTerms().v;
+  return shell(`
+  <button class="back" data-act="back" style="margin-top:14px">← Estabelecimentos</button>
+  <div class="dhead">${ava(k,true)}<div class="nm"><h2>${esc(k.nome)}</h2><div class="row" style="flex-wrap:wrap;gap:6px;margin-top:4px">${chip(TIPO[k.tipo])}${chip(SITU[k.situ])}${al.join('')}</div></div>
+    <div class="row" style="flex-wrap:wrap"><button class="btn" data-act="contato" data-id="${k.id}">✉ Falar</button><button class="btn blue" data-act="k-imp" data-id="${k.id}" ${k.situ==='encerrado'?'disabled':''}>👁 Entrar como</button></div></div>
+  <div class="kpis">
+    <div class="kpi"><div class="v">${brl(k.vendas).replace(/,\d\d$/,'')}</div><div class="l">Vendas do mês</div></div>
+    <div class="kpi ${k.cancel>10?'hot':''}"><div class="v">${pct(k.cancel)}</div><div class="l">Cancelamentos</div></div>
+    <div class="kpi ${k.cb?'hot':''}"><div class="v">${k.cb}</div><div class="l">Contestações</div></div>
+    <div class="kpi"><div class="v">${pct(feeOf(k))}</div><div class="l">Comissão ${k.fee==null?'base':'negociada'}</div></div>
+  </div>
+  <div class="cols2">
+    <div class="panel"><h3>Dados</h3><div class="kv-list">
+      <div class="r"><span>Gestor</span><span>${esc(k.gestor)}</span></div>
+      <div class="r"><span>Celular</span><span>${esc(k.tel)}</span></div>
+      <div class="r"><span>E-mail</span><span>${esc(k.email)}</span></div>
+      <div class="r"><span>Termos</span><span>Versão ${k.termos.slice(1)} ${k.termos===ct?chip(['atual','ok']):chip(['falta aceitar','warn'])}</span></div></div></div>
+    <div class="panel"><h3>Recebimentos</h3><div class="kv-list">
+      <div class="r"><span>Verificação</span><span>${chip(VERIF[k.verif])}</span></div>
+      <div class="r"><span>Razão social</span><span>${esc(k.razao)}</span></div>
+      <div class="r"><span>CNPJ</span><span class="mono">${esc(k.cnpj)} 🔒</span></div></div>
+      <button class="btn sm" style="margin-top:10px" data-act="k-cnpj" data-id="${k.id}">Alterar a pedido</button></div>
+    <div class="panel"><h3>Comissão</h3><div class="between"><span class="big" style="font-size:28px">${pct(feeOf(k))}</span><span class="muted small">${k.fee==null?'Base da plataforma':'Negociada'} · só produtos</span></div>
+      <div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn sm" data-act="k-fee" data-id="${k.id}">Alterar</button>${k.fee!=null?`<button class="btn sm ghost" data-act="k-fee-base" data-id="${k.id}">Voltar para a base</button>`:''}</div></div>
+    <div class="panel"><h3>Regras fixas</h3><div class="kv-list">
+      <div class="r"><span>Prazo do Pix</span><span>${ov.pix||10} min ${ov.pix?chip(['ajustado','warn']):''}</span></div>
+      <div class="r"><span>Prazo do cartão</span><span>${ov.card||5} min ${ov.card?chip(['ajustado','warn']):''}</span></div>
+      <div class="r"><span>Tentativas</span><span>${ov.tent||3} ${ov.tent?chip(['ajustado','warn']):''}</span></div></div>
+      <button class="btn sm" style="margin-top:10px" data-act="k-over" data-id="${k.id}">Ajustar</button></div>
+  </div>
+  <div class="section-title">Suspensão</div>
+  <div class="panel">${susp}</div>
+  <div class="section-title">Histórico</div>
+  <div class="panel">${hist.length?hist.map(a=>`<div class="item small"><span><b>${esc(a.acao)}</b>${a.det?' · '+esc(a.det):''}</span><span class="muted num" style="white-space:nowrap">${fmtDT(a.em)}</span></div>`).join(''):'<div class="muted small">Sem registros.</div>'}</div>`);
+}
+function viewImp(){
+  const k=K(S.kid)||KIOSKS[0];
+  return `<div class="main">
+  <div class="imp-band">👁 Vendo como gestor de ${esc(k.nome)} · somente leitura<span class="grow"></span><button class="btn sm" data-act="imp-exit">Sair</button></div>
+  <div class="op-top">${ava(k)}<div style="flex:1"><b>${esc(k.nome)}</b><div class="small"><span class="dot ok"></span> <b style="color:var(--verde-esc)">Aberto</b> · 9h às 18h</div></div><span class="ava" style="background:var(--azul)">${k.gestor.split(' ').map(x=>x[0]).join('').slice(0,2)}</span></div>
+  <div class="op-tabs">${['Bar','Cozinha','Mesas','Estoque','Cardápio','Operacional','Meu negócio'].map((t,i)=>`<span class="${i===6?'on':''}">${t}</span>`).join('')}</div>
+  <div class="content ro" style="padding-top:16px">
+    <div class="op-tabs" style="padding:0 0 12px;background:none;border:0">${['Funcionamento','Perfil','Pedidos','Regras','Recebimentos','Pontos'].map((t,i)=>`<span class="${i===0?'on':''}" style="${i===0?'':'background:var(--surface)'}">${t}</span>`).join('')}</div>
+    <div class="panel"><h3>Situação</h3><div class="between"><span><span class="dot ok"></span> <b>Aberto</b></span><input type="checkbox" class="switch" checked disabled></div></div>
+    <div class="section-title">Horários</div>
+    <div class="panel">${[['Seg a sex','09:00','18:00'],['Sábado','08:00','19:00'],['Domingo','08:00','19:00']].map(([d,a,b])=>`<div class="item"><b>${d}</b><span class="row"><input class="input" style="width:90px" value="${a}" disabled> às <input class="input" style="width:90px" value="${b}" disabled></span></div>`).join('')}</div>
+    <div class="section-title">Aviso de fechamento</div>
+    <div class="panel row">Avisar o cliente <input class="input" style="width:70px" value="30" disabled> minutos antes</div>
+    <div class="row" style="margin-top:16px"><button class="btn primary" disabled>Salvar</button><span class="muted small">Somente leitura</span></div>
+  </div></div>`;
+}
+
+/* ================= FINANCEIRO ================= */
+function viewFin(){
+  const fac={'2026-10':.28,'2026-09':1,'2026-08':.86}[S.fin.per];
+  const rows=KIOSKS.filter(k=>k.vendas>0).map(k=>{const prod=+(k.vendas*.92*fac).toFixed(2),fee=feeOf(k),com=+(prod*fee/100).toFixed(2),est=+(com*k.cancel/100).toFixed(2);return{k,prod,fee,com,est,liq:+(com-est).toFixed(2)};});
+  const T=rows.reduce((a,r)=>({prod:a.prod+r.prod,com:a.com+r.com,est:a.est+r.est,liq:a.liq+r.liq}),{prod:0,com:0,est:0,liq:0});
+  const list=wide()?`<table class="table"><thead><tr><th>Estabelecimento</th><th class="n">Vendido</th><th class="n">Comissão</th><th class="n">Estornos</th><th class="n">Líquido</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr><td><div class="cell-est">${ava(r.k)}<b>${esc(r.k.nome)}</b></div></td><td class="n">${brl(r.prod)}</td><td class="n">${brl(r.com)} <span class="muted small">(${pct(r.fee)})</span></td><td class="n" style="color:var(--bad)">− ${brl(r.est)}</td><td class="n"><b>${brl(r.liq)}</b></td></tr>`).join('')}
+    <tr class="total"><td>Total</td><td class="n">${brl(T.prod)}</td><td class="n">${brl(T.com)}</td><td class="n">− ${brl(T.est)}</td><td class="n">${brl(T.liq)}</td></tr></tbody></table>`
+   :`<div class="lcards">${rows.map(r=>`<div class="lcard"><div class="top">${ava(r.k)}<div class="nm"><b>${esc(r.k.nome)}</b></div><b class="num" style="color:var(--azul)">${brl(r.liq)}</b></div><hr class="sep">
+      <div class="kv2"><div><span class="lbl">Vendido</span><b class="num">${brl(r.prod)}</b></div><div><span class="lbl">Comissão</span><b class="num">${brl(r.com)}</b> <span class="muted small">${pct(r.fee)}</span></div>
+      <div><span class="lbl">Estornos</span><b class="num" style="color:var(--bad)">− ${brl(r.est)}</b></div></div></div>`).join('')}
+      <div class="lcard" style="background:var(--azul-claro);border-color:transparent"><div class="between"><b>Total líquido</b><b class="num" style="font-size:18px;color:var(--azul-esc)">${brl(T.liq)}</b></div></div></div>`;
+  return shell(`
+  <div class="toolbar"><select class="input" style="max-width:220px" data-filter="fin.per">${[['2026-10','Outubro/2026'],['2026-09','Setembro/2026'],['2026-08','Agosto/2026']].map(([v,l])=>`<option value="${v}" ${S.fin.per===v?'selected':''}>${l}</option>`).join('')}</select><span class="grow"></span><button class="btn" data-act="toast" data-msg="CSV baixado: comissões por estabelecimento">⬇ CSV</button></div>
+  <div class="kpis">
+    <div class="kpi"><div class="v">${brl(T.prod).replace(/,\d\d$/,'')}</div><div class="l">Vendido em produtos</div></div>
+    <div class="kpi"><div class="v">${brl(T.com).replace(/,\d\d$/,'')}</div><div class="l">Comissão</div></div>
+    <div class="kpi hot"><div class="v">${brl(T.est).replace(/,\d\d$/,'')}</div><div class="l">Estornos</div></div>
+    <div class="kpi"><div class="v" style="color:var(--verde-esc)">${brl(T.liq).replace(/,\d\d$/,'')}</div><div class="l">Líquido</div></div>
+  </div>${list}`);
+}
+
+/* ================= COMISSÃO E TERMOS ================= */
+function viewTermos(){
+  const T=curTerms(),ativos=KIOSKS.filter(k=>k.situ!=='encerrado'),ok=ativos.filter(k=>k.termos===T.v),pend=ativos.filter(k=>k.termos!==T.v);
+  const p=Math.round(ok.length/ativos.length*100),old=TERMS.slice(0,-1).reverse(),n=daysTo(termsSusp());
+  return shell(`
+  <div class="cols2" style="margin-top:8px">
+    <div><div class="section-title" style="margin-top:0">Comissão</div>
+      <div class="panel"><div class="between"><div><span class="big">${pct(BASE_FEE)}</span><div class="muted small">dos produtos · base</div></div><button class="btn" data-act="fee-base">Alterar</button></div></div></div>
+    <div><div class="section-title" style="margin-top:0">Termos de uso</div>
+      <div class="panel"><div class="between"><b style="font-size:17px">Versão ${T.v.slice(1)}</b>${chip(['em vigor','ok'])}</div>
+        <div class="muted small" style="margin:2px 0 4px">desde ${fmtD(T.vig)}</div><div style="margin-bottom:12px">${esc(T.resumo)}</div>
+        <div class="row"><button class="btn" data-act="read" data-v="${T.v}">Ler</button><button class="btn primary" data-act="terms-new">Nova versão</button></div></div></div>
+  </div>
+  <div class="section-title">Aceites</div>
+  <div class="panel">
+    <div class="between"><span><b>${ok.length} de ${ativos.length}</b> aceitaram</span><b style="color:var(--verde-esc)">${p}%</b></div>
+    <div class="bar" style="margin:8px 0 12px"><i style="width:${p}%"></i></div>
+    ${pend.length?`<div class="lbl">Faltam aceitar · prazo ${fmtD(termsDeadline())}</div>
+    ${pend.map(k=>`<div class="item"><span class="row">${ava(k)}<span><b>${esc(k.nome)}</b><br>${k.situ==='suspenso'?chip(['suspenso','bad']):chip([`suspensão em ${n} dia${n===1?'':'s'}`,n<=15?'bad':'warn'])}</span></span><button class="icon-btn" data-act="contato" data-id="${k.id}" title="Falar com o gestor">✉</button></div>`).join('')}
+    <button class="btn block" style="margin-top:10px" data-act="toast" data-msg="Aviso enviado a ${pend.length} gestores (app + WhatsApp)">Avisar todos que faltam</button>`:'<div class="muted">Todos aceitaram ✅</div>'}
+  </div>
+  ${old.length?`<button class="fold" data-act="hist">${S.hist?'▾':'▸'} Versões anteriores <span class="chip">${old.length}</span></button>
+  ${S.hist?`<div class="panel">${old.map(t=>`<div class="item"><span><b>Versão ${t.v.slice(1)}</b> <span class="muted small">· ${esc(t.resumo)} · ${fmtD(t.vig)}</span></span><button class="link" data-act="read" data-v="${t.v}">Ler</button></div>`).join('')}</div>`:''}`:''}`);
+}
+
+/* ================= LISTA DE BLOQUEIO ================= */
+const maskTel=t=>t.replace(/\d{4,5}-(\d{4})$/,'•••••-$1');
+function viewBloq(){
+  const q=(S.fb.q||'').replace(/\D/g,'');
+  const list=BLOCKS.filter(b=>(!S.fb.nivel||b.nivel===S.fb.nivel)&&b.tel.replace(/\D/g,'').includes(q));
+  const rows=!list.length?'<div class="empty">Nenhum registro</div>':wide()?`<table class="table"><thead><tr><th>Telefone</th><th>Nível</th><th>Cartão</th><th class="n">Contestações</th><th>Origem</th><th>Desde</th><th></th></tr></thead><tbody>
+    ${list.map(b=>`<tr><td><b class="num">${maskTel(b.tel)}</b></td><td>${chip(NIVEL[b.nivel])}</td><td class="num">${b.card}</td><td class="n"><b>${b.cb}</b></td><td>${esc(b.origem)}</td><td class="num">${fmtD(b.desde)}</td><td><button class="btn sm" data-act="blk-rev" data-id="${b.id}">Revogar</button></td></tr>`).join('')}</tbody></table>`
+   :`<div class="lcards">${list.map(b=>`<div class="lcard"><div class="between"><b class="num" style="font-size:16px">${maskTel(b.tel)}</b>${chip(NIVEL[b.nivel])}</div><hr class="sep">
+      <div class="kv2"><div><span class="lbl">Cartão</span><b class="num">${b.card}</b></div><div><span class="lbl">Contestações</span><b>${b.cb}</b></div>
+      <div><span class="lbl">Origem</span>${esc(b.origem)}</div><div><span class="lbl">Desde</span><b class="num">${fmtD(b.desde)}</b></div></div>
+      <div class="act"><button class="btn sm block" data-act="blk-rev" data-id="${b.id}">Revogar</button></div></div>`).join('')}</div>`;
+  return shell(`
+  <div class="toolbar">${searchBox('fb.q','Buscar telefone')}${filtBtn('fb-open',S.fb.nivel?1:0)}<button class="btn danger" data-act="blk-new">🚫 Bloquear</button></div>
+  ${S.fb.open?`<div class="panel fpanel">${sel('fb.nivel','Nível: todos',Object.entries(NIVEL).map(([v,[l]])=>[v,l]))}</div>`:''}
+  ${rows}`);
+}
+
+/* ================= TICKETS ================= */
+function viewTickets(){
+  const q=S.ft.q.toLowerCase();
+  const list=TICKETS.filter(t=>(!S.ft.orig||t.orig===S.ft.orig)&&(!S.ft.st||t.st===S.ft.st)&&(!q||(t.id+t.assunto+t.de).toLowerCase().includes(q)));
+  const nf=[S.ft.orig,S.ft.st].filter(Boolean).length;
+  return shell(`
+  <div class="toolbar">${searchBox('ft.q','Buscar ticket')}${filtBtn('ft-open',nf)}</div>
+  ${S.ft.open?`<div class="panel fpanel">${sel('ft.orig','Origem: todas',[['cliente','Clientes'],['gestor','Gestores']])}${sel('ft.st','Status: todos',Object.entries(TST).map(([v,[l]])=>[v,l]))}</div>`:''}
+  <div class="lcards" ${wide()?'style="display:grid;grid-template-columns:1fr 1fr"':''}>${list.map(t=>`<div class="lcard click" data-act="tk-open" data-id="${t.id}">
+    <div class="between"><span class="row"><span class="est-ava ${t.orig==='cliente'?'t-quiosque':'t-foodtruck'}" style="width:34px;height:34px;font-size:17px">${t.orig==='cliente'?'🙋':'🏪'}</span><b>${esc(t.assunto)}</b></span>${chip(TST[t.st])}</div>
+    <hr class="sep">
+    <div class="kv2"><div><span class="lbl">${t.orig==='cliente'?'Cliente':'Gestor'}</span>${esc(t.de)}</div><div><span class="lbl">Ticket</span><b class="num">${t.id}</b> · <span class="muted small">${t.em}</span></div></div>
+    <div class="muted small" style="margin-top:8px">💬 ${esc(t.msgs[t.msgs.length-1][1]).slice(0,90)}</div></div>`).join('')||'<div class="empty">Nenhum ticket</div>'}</div>`);
+}
+function modalTicket(id){
+  const t=TICKETS.find(x=>x.id===id);
+  modal(`<div class="between"><h3>${esc(t.assunto)}</h3>${chip(TST[t.st])}</div>
+    <div class="muted small">${t.id} · ${t.orig==='cliente'?'Cliente':'Gestor'}: ${esc(t.de)}</div>
+    <div class="thread">${t.msgs.map(([w,m])=>`<div class="msg ${w==='admin'?'me':''}"><small>${w==='admin'?'Equipe PedeAí':w==='cliente'?'Cliente':'Gestor'}</small>${esc(m)}</div>`).join('')}</div>
+    <div class="field"><label>Resposta</label><textarea class="input" id="tk-msg" rows="3" placeholder="Escreva aqui"></textarea></div>
+    <div class="grid2"><div class="field"><label>Status</label><select class="input" id="tk-st">${Object.entries(TST).map(([v,[l]])=>`<option value="${v}" ${t.st===v?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="field"><label>Vínculo</label><select class="input" id="tk-vinc"><option>${esc(t.vinc)}</option>${KIOSKS.filter(k=>k.nome!==t.vinc).map(k=>`<option>${esc(k.nome)}</option>`).join('')}</select></div></div>
+    <div class="foot"><button class="btn" data-act="close">Fechar</button><button class="btn primary" data-act="tk-save" data-id="${t.id}">Enviar</button></div>`);
+}
+
+/* ================= LGPD ================= */
+function viewLgpd(){
+  return shell(`
+  <div class="section-title" style="margin-top:8px">Apagar dados</div>
+  <div class="panel">
+    <div class="toolbar" style="margin:0"><div class="search"><input class="input" id="lgpd-tel" inputmode="tel" placeholder="Celular do cliente" value="${esc(S.lgpdQ)}"></div><button class="btn blue" data-act="lgpd-find">Buscar</button></div>
+    ${S.lgpdFound?`<div class="lcard" style="margin-top:12px;background:var(--surface2);box-shadow:none">
+      <div class="top"><span class="ava" style="background:var(--azul)">CM</span><div class="nm"><b>Carlos Mendes</b><div class="sub">${esc(S.lgpdQ||'(13) 98888-1111')}</div></div></div><hr class="sep">
+      <div class="kv2"><div><span class="lbl">Pedidos</span><b>12</b> em 3 lugares</div><div><span class="lbl">Última visita</span><b>28/09/2026</b></div>
+      <div><span class="lbl">E-mail</span>carlos.m@…</div><div><span class="lbl">Endereços</span><b>2</b></div></div>
+      <div class="act"><button class="btn danger block" data-act="lgpd-anon">Apagar dados pessoais</button></div></div>`:''}
+  </div>
+  <div class="section-title">Pedidos recentes</div>
+  <div class="panel">${TICKETS.filter(t=>/LGPD/.test(t.assunto)).map(t=>`<div class="item"><span><b class="num">${t.id}</b> · ${esc(t.de)}</span>${chip(TST[t.st])}</div>`).join('')}</div>`);
+}
+
+/* ================= AUDITORIA ================= */
+function viewAud(){
+  const q=S.au.q.toLowerCase(),list=AUDIT.filter(a=>(a.acao+a.alvo+a.quem+a.det).toLowerCase().includes(q));
+  const rows=!list.length?'<div class="empty">Nada encontrado</div>':wide()?`<table class="table"><thead><tr><th>Ação</th><th>Quando</th><th>Alvo</th><th>Quem</th><th>Detalhe</th></tr></thead><tbody>
+    ${list.map(a=>`<tr><td><b>${esc(a.acao)}</b></td><td class="num" style="white-space:nowrap">${fmtDT(a.em)}</td><td>${esc(a.alvo)}</td><td>${esc(a.quem)}</td><td class="muted">${esc(a.det)}</td></tr>`).join('')}</tbody></table>`
+   :`<div class="lcards">${list.map(a=>`<div class="lcard"><div class="between"><b>${esc(a.acao)}</b><span class="muted small num">${fmtDT(a.em)}</span></div><hr class="sep">
+      <div class="kv2"><div><span class="lbl">Alvo</span>${esc(a.alvo)}</div><div><span class="lbl">Quem</span>${esc(a.quem)}</div></div>${a.det?`<div class="muted small" style="margin-top:8px">${esc(a.det)}</div>`:''}</div>`).join('')}</div>`;
+  return shell(`<div class="toolbar">${searchBox('au.q','Buscar')}</div>${rows}`);
+}
+
+/* ================= TELAS DO GESTOR (prévia) ================= */
+function viewGSusp(){
+  const k=KIOSKS.find(x=>x.situ==='suspenso')||KIOSKS[3];
+  return `<div class="gest"><div class="box">
+    <span class="logo"><img src="logo.svg" alt=""><span class="wm">pede<b>Aí</b></span></span>
+    <div class="row" style="margin-bottom:14px">${ava(k)}<b style="font-size:17px">${esc(k.nome)}</b></div>
+    <div class="alert bad col"><b style="font-size:16px">⛔ Negócio suspenso</b><span class="small" style="font-weight:600">Desde ${fmtD(k.suspensoEm||HOJE)}. Clientes não conseguem pedir.</span></div>
+    <div class="panel" style="margin-top:12px"><h3>Motivo</h3><div>${esc(k.proc?k.proc.motivo:'—')}</div></div>
+    <div class="panel" style="margin-top:12px"><h3>Fale com a gente</h3><div class="muted">✉ suporte@pedeai.com.br</div>
+      <button class="btn primary block" style="margin-top:12px" data-act="toast" data-msg="Ticket aberto. Vamos responder em breve.">Abrir ticket</button></div>
+    <div style="text-align:center;margin-top:16px"><button class="link" data-act="jump" data-v="est">← Voltar ao admin</button></div>
+  </div></div>`;
+}
+function viewGTermos(){
+  const t=curTerms();
+  return `<div class="gest"><div class="box" style="max-width:500px">
+    <span class="logo"><img src="logo.svg" alt=""><span class="wm">pede<b>Aí</b></span></span>
+    <h2 style="margin:0 0 4px;font-weight:900">Novos termos</h2><div class="muted">Versão ${t.v.slice(1)} · vale desde ${fmtD(t.vig)}</div>
+    <div class="alert" style="margin-top:12px">Aceite até ${fmtD(termsDeadline())}</div>
+    <div class="doc"><b>Termos de uso PedeAí · versão ${t.v.slice(1)}</b>
+      <p>1. Objeto. O PedeAí oferece ao negócio uma plataforma de pedidos por QR Code e pelo site.</p>
+      <p>2. Comissão. ${pct(BASE_FEE)} sobre os produtos, nunca sobre a taxa de serviço.</p>
+      <p>3. Pagamentos. O valor é dividido pelo provedor de pagamento. A tarifa do provedor é do negócio.</p>
+      <p>4. Estornos e contestações seguem as regras da plataforma.</p>
+      <p>5. Suspensão. Pode ocorrer após avisos prévios.</p>
+      <p>6. Suporte. A equipe PedeAí pode ver o painel em modo somente leitura.</p>
+      <p>7. Privacidade e LGPD.</p><p class="muted"><i>Fim do documento</i></p></div>
+    <label class="row" style="margin-bottom:12px;font-weight:700"><input type="checkbox" class="check" id="t-ok"> Li e concordo</label>
+    <button class="btn primary block" data-act="terms-accept">Concordar e continuar</button>
+    <div style="text-align:center;margin-top:16px"><button class="link" data-act="jump" data-v="termos">← Voltar ao admin</button></div>
+  </div></div>`;
+}
+
+/* ================= RENDER ================= */
+const JUMP=[['login','Login'],['2fa','2 etapas'],['est','Estabelecimentos'],['det','Detalhe: Quiosque do Zé'],['imp','Entrar como'],['fin','Financeiro'],['termos','Comissão e termos'],['bloq','Lista de bloqueio'],['tickets','Tickets'],['lgpd','LGPD'],['aud','Auditoria'],['g-susp','Gestor: suspenso'],['g-termos','Gestor: novos termos']];
+function curJump(){ if(['login','2fa','imp','g-susp','g-termos'].includes(S.screen)) return S.screen; if(S.tab==='est'&&S.kid==='k2') return 'det'; return S.tab; }
+function render(){
+  const dev=$('#device'); dev.className=wide()?'wide':'phone';
+  document.querySelectorAll('#pb-frame button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===S.frame));
+  $('#pb-jump').innerHTML=JUMP.map(([v,l])=>`<option value="${v}" ${curJump()===v?'selected':''}>${l}</option>`).join('');
+  const app=$('#app');
+  if(S.screen==='login'||S.screen==='2fa'){app.innerHTML=viewLogin();return;}
+  if(S.screen==='imp'){app.innerHTML=viewImp();return;}
+  if(S.screen==='g-susp'){app.innerHTML=viewGSusp();return;}
+  if(S.screen==='g-termos'){app.innerHTML=viewGTermos();return;}
+  app.innerHTML={est:viewEst,fin:viewFin,termos:viewTermos,bloq:viewBloq,tickets:viewTickets,lgpd:viewLgpd,aud:viewAud}[S.tab]();
+}
+function jump(v){
+  S.menu=false; closeModal();
+  if(['login','2fa','g-susp','g-termos'].includes(v)){S.screen=v;return;}
+  if(v==='imp'){S.kid=S.kid||'k1';S.screen='imp';return;}
+  S.screen='app';
+  if(v==='det'){S.tab='est';S.kid='k2';return;}
+  S.tab=v;S.kid=null;
+}
+$('#pb-jump').onchange=e=>{jump(e.target.value);render();window.scrollTo(0,0);};
+$('#pb-frame').onclick=e=>{const b=e.target.closest('button');if(b){S.frame=b.dataset.f;render();}};
+
+/* ================= AÇÕES ================= */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');
+  if(!b){if(S.menu){S.menu=false;render();}return;}
+  const a=b.dataset.act,d=b.dataset;
+  if(a==='close-overlay'&&e.target!==b) return;
+  e.stopPropagation();
+  switch(a){
+    case 'go': S.screen=d.v; break;
+    case 'jump': jump(d.v); break;
+    case 'login-ok': S.screen='app'; S.tab='est'; toast('Bem-vindo, '+ADMIN.nome.split(' ')[0]+'!'); break;
+    case 'logout': S.screen='login'; S.menu=false; break;
+    case 'menu': S.menu=!S.menu; break;
+    case 'tab': S.tab=d.tab; S.kid=null; S.menu=false; break;
+    case 'toast': toast(d.msg); return;
+    case 'close': case 'close-overlay': closeModal(); return;
+    case 'fk-hot': S.fk.alerta='cancel'; S.fk.open=true; break;
+    case 'fk-open': S.fk.open=!S.fk.open; break;
+    case 'fk-clear': Object.assign(S.fk,{tipo:'',situ:'',verif:'',alerta:''}); break;
+    case 'fb-open': S.fb.open=!S.fb.open; break;
+    case 'ft-open': S.ft.open=!S.ft.open; break;
+    case 'hist': S.hist=!S.hist; break;
+    case 'read': { const t=TERMS.find(x=>x.v===d.v); return modal(`<h3>Termos de uso · versão ${t.v.slice(1)}</h3><div class="muted small">Vigência ${fmtD(t.vig)} · ${esc(t.resumo)}</div><div class="doc"><p>1. Objeto…</p><p>2. Comissão sobre os produtos…</p><p>3. Pagamentos e divisão…</p><p>4. Estornos e contestações…</p><p>5. Suspensão após avisos…</p><p>6. Suporte em modo leitura…</p><p>7. Privacidade e LGPD…</p></div><div class="foot"><button class="btn" data-act="close">Fechar</button></div>`); }
+    case 'contato': { const k=K(d.id); return modal(`<h3>Falar com ${esc(k.gestor)}</h3><div class="muted small">${esc(k.nome)}</div>
+      <button class="sheet-opt" data-act="close-toast" data-msg="Abrindo WhatsApp de ${esc(k.gestor)}"><span class="ic" style="background:var(--verde-claro)">💬</span><span>WhatsApp<small>${esc(k.tel)}</small></span></button>
+      <button class="sheet-opt" data-act="close-toast" data-msg="Abrindo e-mail para ${esc(k.email)}"><span class="ic">✉</span><span>E-mail<small>${esc(k.email)}</small></span></button>
+      <div class="foot"><button class="btn" data-act="close">Fechar</button></div>`); }
+    case 'close-toast': closeModal(); toast(d.msg); return;
+    case 'open-k': S.kid=d.id; window.scrollTo(0,0); break;
+    case 'back': S.kid=null; break;
+    case 'k-imp': { const k=K(d.id); return modal(`<h3>Entrar como gestor?</h3><p class="muted">Você verá o painel de <b>${esc(k.nome)}</b> sem poder alterar nada. Fica registrado na auditoria.</p><div class="foot"><button class="btn" data-act="close">Voltar</button><button class="btn blue" data-act="k-imp-ok" data-id="${k.id}">👁 Entrar</button></div>`); }
+    case 'k-imp-ok': audit('Entrar como (leitura)',K(d.id).nome,'Suporte'); closeModal(); S.kid=d.id; S.screen='imp'; break;
+    case 'imp-exit': S.screen='app'; S.tab='est'; break;
+    case 'k-cnpj': { const k=K(d.id); return modal(`<h3>Alterar CNPJ</h3><p class="muted small">Só a pedido do negócio. Exige nova verificação.</p>
+      <div class="field"><label>CNPJ</label><input class="input" id="n-cnpj" value="${esc(k.cnpj)}"></div><div class="field"><label>Razão social</label><input class="input" id="n-razao" value="${esc(k.razao)}"></div>
+      <div class="field"><label>Motivo</label><input class="input" id="n-mot" placeholder="Ex.: ticket T-102"></div>
+      <div class="foot"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="k-cnpj-ok" data-id="${k.id}">Alterar</button></div>`); }
+    case 'k-cnpj-ok': { const k=K(d.id),m=$('#n-mot').value.trim(); if(!m) return toast('Informe o motivo'); k.cnpj=$('#n-cnpj').value; k.razao=$('#n-razao').value; k.verif='em-analise'; audit('CNPJ alterado a pedido',k.nome,m); closeModal(); toast('Alterado. Recebimento em análise.'); break; }
+    case 'k-fee': { const k=K(d.id); return modal(`<h3>Comissão · ${esc(k.nome)}</h3><div class="field"><label>% sobre os produtos</label><input class="input" type="number" step="0.1" id="n-fee" value="${feeOf(k)}"></div><div class="field"><label>Motivo</label><input class="input" id="n-fee-mot" placeholder="Ex.: volume alto"></div><p class="muted small">Vale para pagamentos novos, após o aceite do gestor.</p><div class="foot"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="k-fee-ok" data-id="${k.id}">Salvar</button></div>`); }
+    case 'k-fee-ok': { const k=K(d.id),old=feeOf(k); k.fee=+$('#n-fee').value; audit('Comissão alterada',k.nome,`${pct(old)} → ${pct(k.fee)}`); closeModal(); toast('Salvo. Gestor avisado para aceitar.'); break; }
+    case 'k-fee-base': { const k=K(d.id); k.fee=null; audit('Comissão voltou para a base',k.nome,''); toast('Agora usa a comissão base'); break; }
+    case 'k-over': { const k=K(d.id),o=k.over; return modal(`<h3>Regras fixas · ${esc(k.nome)}</h3><p class="muted small">Só em caso excepcional.</p>
+      <div class="grid2"><div class="field"><label>Pix (min)</label><input class="input" type="number" id="o-pix" value="${o.pix||10}"></div><div class="field"><label>Cartão (min)</label><input class="input" type="number" id="o-card" value="${o.card||5}"></div></div>
+      <div class="field"><label>Tentativas</label><input class="input" type="number" id="o-tent" value="${o.tent||3}"></div><div class="field"><label>Motivo</label><input class="input" id="o-mot"></div>
+      <div class="foot"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="k-over-ok" data-id="${k.id}">Salvar</button></div>`); }
+    case 'k-over-ok': { const k=K(d.id),m=$('#o-mot').value.trim(); if(!m) return toast('Informe o motivo'); const p=+$('#o-pix').value,c=+$('#o-card').value,t=+$('#o-tent').value; k.over={pix:p!==10?p:undefined,card:c!==5?c:undefined,tent:t!==3?t:undefined}; audit('Regras fixas ajustadas',k.nome,m); closeModal(); toast('Ajuste salvo'); break; }
+    case 'k-proc': { const k=K(d.id); return modal(`<h3>Iniciar suspensão</h3><div class="muted small">${esc(k.nome)}</div>
+      <div class="field" style="margin-top:12px"><label>Motivo</label><textarea class="input" id="p-mot" rows="2" placeholder="Ex.: cancelamento acima de 10%"></textarea></div>
+      <div class="field"><label>Avisos (dias antes)</label><div class="days"><input class="input" type="number" id="e1" value="${S.etapas[0]}"><input class="input" type="number" id="e2" value="${S.etapas[1]}"><input class="input" type="number" id="e3" value="${S.etapas[2]}"></div></div>
+      <p class="muted small">Pelo app e WhatsApp. Sem contato, suspende no fim.</p>
+      <div class="foot"><button class="btn" data-act="close">Cancelar</button><button class="btn danger" data-act="k-proc-ok" data-id="${k.id}">Iniciar</button></div>`); }
+    case 'k-proc-ok': { const k=K(d.id),m=$('#p-mot').value.trim(); if(!m) return toast('Informe o motivo'); S.etapas=[+$('#e1').value,+$('#e2').value,+$('#e3').value]; k.proc={motivo:m,inicio:HOJE,enviados:1}; audit('Iniciou suspensão',k.nome,m); closeModal(); toast('1º aviso enviado ao gestor'); break; }
+    case 'k-aviso': { const k=K(d.id); if(k.proc.enviados<3){k.proc.enviados++; toast(`${k.proc.enviados}º aviso enviado ao gestor`);} else {k.proc.enviados=4; k.situ='suspenso'; k.suspensoEm=HOJE; audit('Estabelecimento suspenso',k.nome,'Sem contato após 3 avisos'); toast('Sem contato: estabelecimento suspenso');} break; }
+    case 'k-proc-cancel': { const k=K(d.id); k.proc=null; audit('Cancelou suspensão',k.nome,''); toast('Processo cancelado. Gestor avisado.'); break; }
+    case 'k-suspender': return confirmModal('Suspender agora?','Para de receber pedidos na hora. O gestor vê o motivo ao entrar.','k-suspender-ok',d.id,'Suspender');
+    case 'k-suspender-ok': { const k=K(d.id); k.situ='suspenso'; k.suspensoEm=HOJE; k.proc=k.proc||{motivo:'—',inicio:HOJE}; k.proc.enviados=4; audit('Estabelecimento suspenso',k.nome,k.proc.motivo); closeModal(); toast('Suspenso. Gestor avisado.'); break; }
+    case 'k-reativar': { const k=K(d.id); k.situ='ativo'; k.proc=null; k.suspensoEm=null; audit('Estabelecimento reativado',k.nome,''); toast('Reativado'); break; }
+    case 'k-encerrar': return confirmModal('Encerrar?','Sai da plataforma e fica só o histórico. Use quando o contrato terminar.','k-encerrar-ok',d.id,'Encerrar');
+    case 'k-encerrar-ok': { const k=K(d.id); k.situ='encerrado'; k.proc=null; audit('Estabelecimento encerrado',k.nome,''); closeModal(); toast('Encerrado'); break; }
+    case 'fee-base': return modal(`<h3>Comissão base</h3><div class="field"><label>% sobre os produtos</label><input class="input" type="number" step="0.1" id="nb" value="${BASE_FEE}"></div><div class="field"><label>Vale a partir de</label><input class="input" type="date" id="nb-vig" value="2026-11-08"></div><p class="muted small">Gestores leem e aceitam. Não muda comissões negociadas.</p><div class="foot"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="fee-base-ok">Publicar</button></div>`);
+    case 'fee-base-ok': { const old=BASE_FEE; BASE_FEE=+$('#nb').value; audit('Comissão base alterada','Plataforma',`${pct(old)} → ${pct(BASE_FEE)}`); closeModal(); toast('Publicado. Gestores avisados.'); break; }
+    case 'terms-new': return modal(`<h3>Nova versão</h3><div class="field"><label>Resumo</label><input class="input" id="tr" placeholder="Ex.: nova regra de suspensão"></div><div class="field"><label>Texto</label><textarea class="input" rows="5" placeholder="Cole o documento"></textarea></div><div class="field"><label>Vale a partir de</label><input class="input" type="date" id="tvig" value="2026-11-08"></div><div class="foot"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="terms-ok">Publicar</button></div>`);
+    case 'terms-ok': { const v='v'+(TERMS.length+1); TERMS.push({v,vig:$('#tvig').value||HOJE,resumo:$('#tr').value.trim()||'Atualização'}); audit('Nova versão dos termos','Plataforma','Versão '+v.slice(1)); closeModal(); toast('Publicado. Gestores aceitam no próximo acesso.'); break; }
+    case 'terms-accept': if(!$('#t-ok').checked) return toast('Marque "Li e concordo"'); { const k=KIOSKS.find(x=>x.termos!==curTerms().v&&x.situ!=='encerrado'); if(k) k.termos=curTerms().v; toast('Termos aceitos'); jump('termos'); } break;
+    case 'blk-new': return modal(`<h3>🚫 Bloquear</h3><p class="muted small">Fraude evidente. Vale em todos os negócios.</p><div class="field"><label>Celular</label><input class="input" id="bk-tel" placeholder="(13) 99999-0000"></div><div class="field"><label>Cartão (opcional)</label><input class="input" id="bk-card" placeholder="Final do cartão"></div><div class="field"><label>Motivo</label><textarea class="input" id="bk-mot" rows="2"></textarea></div><div class="foot"><button class="btn" data-act="close">Cancelar</button><button class="btn danger" data-act="blk-ok">Bloquear</button></div>`);
+    case 'blk-ok': { const m=$('#bk-mot').value.trim(); if(!m) return toast('Informe o motivo'); BLOCKS.unshift({id:'b'+Date.now(),tel:$('#bk-tel').value||'(13) 90000-0000',card:$('#bk-card').value?('•••• '+$('#bk-card').value):'—',nivel:'bloqueado',cb:0,origem:'Fraude evidente · equipe PedeAí',desde:HOJE}); audit('Cliente bloqueado','Lista de bloqueio',m); closeModal(); toast('Bloqueado em todos os negócios'); break; }
+    case 'blk-rev': return modal(`<h3>Revogar bloqueio</h3><div class="field"><label>Motivo</label><input class="input" id="rv-mot" placeholder="Ex.: ticket T-104"></div><div class="foot"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="blk-rev-ok" data-id="${d.id}">Revogar</button></div>`);
+    case 'blk-rev-ok': { const m=$('#rv-mot').value.trim(); if(!m) return toast('Informe o motivo'); BLOCKS=BLOCKS.filter(x=>x.id!==d.id); audit('Bloqueio revogado','Lista de bloqueio',m); closeModal(); toast('Bloqueio revogado'); break; }
+    case 'tk-open': return modalTicket(d.id);
+    case 'tk-save': { const t=TICKETS.find(x=>x.id===d.id),m=$('#tk-msg').value.trim(); if(m) t.msgs.push(['admin',m]); t.st=$('#tk-st').value; t.vinc=$('#tk-vinc').value; closeModal(); toast(m?'Resposta enviada':'Ticket atualizado'); break; }
+    case 'lgpd-find': S.lgpdQ=$('#lgpd-tel').value.trim()||'(13) 98888-1111'; S.lgpdFound=true; break;
+    case 'lgpd-anon': return confirmModal('Apagar dados?','Nome, celular, e-mail e endereços somem para sempre. Os pedidos ficam, sem dados pessoais.','lgpd-ok','','Apagar');
+    case 'lgpd-ok': audit('Dados apagados (LGPD)','Cliente '+maskTel(S.lgpdQ),'Pedido do cliente'); S.lgpdFound=false; S.lgpdQ=''; closeModal(); toast('Dados apagados'); break;
+  }
+  render();
+});
+document.addEventListener('input',e=>{
+  const f=e.target.dataset.filter;
+  if(f&&e.target.tagName==='INPUT'){const [o,k]=f.split('.');S[o][k]=e.target.value;const pos=e.target.selectionStart;render();const el=document.querySelector(`[data-filter="${f}"]`);if(el){el.focus();try{el.setSelectionRange(pos,pos);}catch(_){}}}
+  if(e.target.dataset.otp!=null&&e.target.value){const nx=document.querySelector(`[data-otp="${+e.target.dataset.otp+1}"]`);if(nx)nx.focus();}
+});
+document.addEventListener('change',e=>{const f=e.target.dataset.filter;if(f&&e.target.tagName==='SELECT'){const [o,k]=f.split('.');S[o][k]=e.target.value;render();}});
+render();
+</script>
+</body>
+</html>
